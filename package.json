@@ -1,0 +1,19 @@
+{
+  "name": "ayyo-app",
+  "version": "1.0.0",
+  "description": "File transfer application",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iathul/ayyo-app.git"
+  },
+  "author": "Athul Joy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iathul/ayyo-app/issues"
+  },
+  "homepage": "https://github.com/iathul/ayyo-app#readme"
+}
