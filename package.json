@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/iathul/ayyo-app/issues"
   },
-  "homepage": "https://github.com/iathul/ayyo-app#readme"
+  "homepage": "https://github.com/iathul/ayyo-app#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
