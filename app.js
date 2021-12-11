@@ -10,11 +10,14 @@ connectDB()
 // Import packages
 const express = require('express')
 
-//Create an express app
+// Create an express app
 const app = express()
 
 app.use(express.urlencoded({ extended: false }))   
 app.use(express.json())
+
+// Routes
+app.use('/api/auth', require('./routes/auth'))
 
 const PORT = process.env.PORT || 5000
 
