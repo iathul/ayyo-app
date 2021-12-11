@@ -1,11 +1,32 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { validationResult } = require('express-validator')
+
+// Request validation 
+const requestValidation = (req) => {
+    try {
+        const errors = validationResult(req)
+        if(!errors.isEmpty()){
+            return  `${errors.array()[0].param} ${errors.array()[0].msg}`
+        }
+    } catch (error) {
+        throw error
+    }
+}
 
 // User signup
 exports.signUp = async (req, res) => {
 
     try {
-        const userExists = await User.findOne({ email:req.body.email })
+        // Request validation
+        const result = requestValidation(req)
+        if(result) {
+            return res.status(422).json({
+                error: result
+            })
+        }
+        
+        const userExists = await User.findOne({ email: req.body.email })
         if (userExists){
             return res.status(400).json({
                 error: 'User already exists'
@@ -26,7 +47,6 @@ exports.signUp = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
         throw error
     }
 }
@@ -35,6 +55,14 @@ exports.signUp = async (req, res) => {
 exports.signIn = async (req, res) => {
 
     try {
+        // Request validation
+        const result = requestValidation(req)
+        if(result) {
+            return res.status(422).json({
+                error: result
+            })
+        }
+        
         const { email, password } = req.body
         const user = await User.findOne({email: email})
     
@@ -51,7 +79,7 @@ exports.signIn = async (req, res) => {
         }
     
         const token = jwt.sign({ _id: user._id },
-            process.env.TOKEN_SECRET, { expiresIn: '7d'}
+            process.env.TOKEN_SECRET, { expiresIn: '7d'}  
         )
 
         let authUser = user.userData()
@@ -59,7 +87,6 @@ exports.signIn = async (req, res) => {
         return res.json({token, authUser})     
 
     } catch (error) {
-        console.log(error)
         throw error
     }
 }
