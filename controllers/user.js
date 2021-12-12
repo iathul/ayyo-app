@@ -6,10 +6,8 @@ const User = require('../models/user')
 exports.getUser = (req, res) => {
 
     try {
-
         const user = req.authUser
         return res.json(user)
-
     } 
     catch (error) {
         throw error
@@ -41,4 +39,26 @@ exports.updateUser = async (req, res) => {
     catch (error) {
         throw error
     } 
+}
+
+// Delete user
+exports.deleteUser = async (req, res) => {
+    
+    try {
+        const user = req.authUser
+        const deleted = await user.remove()
+
+        if(!deleted) {
+            return res.status(500).json({
+                error: "Something went wrong. Please try again" 
+            })
+        }else {
+            return res.status(200).json({
+                message: "User deleted successfully"
+            })
+        }
+    }
+    catch (error) {
+        throw error
+    }
 }
