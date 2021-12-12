@@ -1,94 +1,81 @@
-"use strict"
+const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
+const User = require('../models/user');
 
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-const { validationResult } = require('express-validator')
-
-// Request validation 
+// Request validation
 const requestValidation = (req) => {
-    try {
-        const errors = validationResult(req)
-        if(!errors.isEmpty()){
-            return  `${errors.array()[0].param} ${errors.array()[0].msg}`
-        }
-    } catch (error) {
-        throw error
-    }
-}
+  const errors = validationResult(req);
+  let message;
+  if (!errors.isEmpty()) {
+    message = `${errors.array()[0].param} ${errors.array()[0].msg}`;
+  }
+  return message;
+};
 
 // User signup
 exports.signUp = async (req, res) => {
+  // Request validation
+  const result = requestValidation(req);
+  if (result) {
+    return res.status(422).json({
+      error: result,
+    });
+  }
 
-    try {
-        // Request validation
-        const result = requestValidation(req)
-        if(result) {
-            return res.status(422).json({
-                error: result
-            })
-        }
-        
-        const userExists = await User.findOne({ email: req.body.email })
-        if (userExists){
-            return res.status(400).json({
-                error: 'User already exists'
-            })
-        } 
-    
-        const user = new User(req.body)
-        const newUser = await user.save()
+  const userExists = await User.findOne({ email: req.body.email });
+  if (userExists) {
+    return res.status(400).json({
+      error: 'User already exists',
+    });
+  }
 
-        if(!newUser){
-            return res.status(400).json({
-                error: "Signup failed. Please try again"
-            })
-        }else {
-            return res.status(200).json({
-                message: "Signup success"
-            })
-        }
+  const user = new User(req.body);
+  const newUser = await user.save();
 
-    } catch (error) {
-        throw error
-    }
-}
+  if (!newUser) {
+    return res.status(400).json({
+      error: 'Signup failed. Please try again',
+    });
+  }
+  return res.status(200).json({
+    message: 'Signup success',
+  });
+};
 
 // User signin
 exports.signIn = async (req, res) => {
+  // Request validation
+  const result = requestValidation(req);
+  if (result) {
+    return res.status(422).json({
+      error: result,
+    });
+  }
 
-    try {
-        // Request validation
-        const result = requestValidation(req)
-        if(result) {
-            return res.status(422).json({
-                error: result
-            })
-        }
-        
-        const { email, password } = req.body
-        const user = await User.findOne({email: email})
-    
-        if(!user){
-            return res.status(400).json({
-                error: "User not found. Please signup" 
-            })
-        }
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
 
-        if(!user.autheticate(password)){
-            return res.status(401).json({
-                error: "Invalid password"
-            })
-        }
-    
-        const token = jwt.sign({ _id: user._id },
-            process.env.TOKEN_SECRET, { expiresIn: '7d'}  
-        )
+  if (!user) {
+    return res.status(400).json({
+      error: 'User not found. Please signup',
+    });
+  }
 
-        let authUser = user.userData()
+  if (!user.autheticate(password)) {
+    return res.status(401).json({
+      error: 'Invalid password',
+    });
+  }
 
-        return res.json({token, authUser})     
+  const token = jwt.sign(
+    // eslint-disable-next-line no-underscore-dangle
+    { _id: user._id },
+    process.env.TOKEN_SECRET,
 
-    } catch (error) {
-        throw error
-    }
-}
+    { expiresIn: '7d' },
+  );
+
+  const authUser = user.userData();
+
+  return res.json({ token, authUser });
+};

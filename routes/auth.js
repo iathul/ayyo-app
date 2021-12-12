@@ -1,16 +1,14 @@
-"use strict"
-
-const router = require('express').Router()
-const { 
-    signUp,
-    signIn
-} = require('../controllers/auth')
-const { signupValidation, signinValidation } = require('./validation/validators')
+const router = require('express').Router();
+const {
+  signUp,
+  signIn,
+} = require('../controllers/auth');
+const { signupValidation, signinValidation } = require('./validation/validators');
 
 // Signup route
-router.post('/signup', signupValidation(), signUp)
+router.post('/signup', signupValidation(), signUp);
 
 // Signin route
-router.post('/signin', signinValidation(), signIn)
+router.post('/signin', signinValidation(), signIn);
 
-module.exports = router 
+module.exports = router;

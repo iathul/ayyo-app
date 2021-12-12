@@ -1,21 +1,18 @@
-"use strict"
-
-const router = require('express').Router()
-const { 
-    getUser,
-    updateUser,
-    deleteUser
-} = require('../controllers/user')
-const { verifyToken, isAuthenticated } = require('../middlewares/auth')
-
+const router = require('express').Router();
+const {
+  getUser,
+  updateUser,
+  deleteUser,
+} = require('../controllers/user');
+const { verifyToken, isAuthenticated } = require('../middlewares/auth');
 
 // Get user
-router.get('/getUser', verifyToken(), isAuthenticated, getUser)
+router.get('/getUser', verifyToken(), isAuthenticated, getUser);
 
 // Update user
-router.put('/updateUser', verifyToken(), isAuthenticated, updateUser)
+router.put('/updateUser', verifyToken(), isAuthenticated, updateUser);
 
 // Delete user
-router.delete('/deleteUser', verifyToken(), isAuthenticated, deleteUser)
+router.delete('/deleteUser', verifyToken(), isAuthenticated, deleteUser);
 
-module.exports = router 
+module.exports = router;
