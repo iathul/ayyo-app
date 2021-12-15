@@ -38,11 +38,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  profile_pic: {
-    fileName: {
-      type: String,
-      required: false,
-    },
+  avatar: {
+    type: String,
+    required: false,
   },
   createdAt: {
     type: Date,
