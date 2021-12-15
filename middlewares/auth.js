@@ -16,15 +16,17 @@ exports.verifyToken = () => [
 ];
 
 exports.isAuthenticated = async (req, res, next) => {
-  const authUser = await User.findById(req.auth._id).select({
-    salt: 0,
-    hashed_password: 0,
-  });
-  if (!authUser) {
-    return res.status(403).json({
-      error: 'You are not authenticated. Please login',
+  if (req.auth) {
+    const authUser = await User.findById(req.auth._id).select({
+      salt: 0,
+      hashed_password: 0,
     });
+    if (!authUser) {
+      return res.status(403).json({
+        error: 'You are not authenticated. Please login',
+      });
+    }
+    req.authUser = authUser;
+    next();
   }
-  req.authUser = authUser;
-  next();
 };
