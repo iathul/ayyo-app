@@ -3,6 +3,7 @@ const {
   getUser,
   updateUser,
   deleteUser,
+  changeAvatar,
 } = require('../controllers/user');
 const { verifyToken, isAuthenticated } = require('../middlewares/auth');
 
@@ -14,5 +15,8 @@ router.put('/updateUser', verifyToken(), isAuthenticated, updateUser);
 
 // Delete user
 router.delete('/deleteUser', verifyToken(), isAuthenticated, deleteUser);
+
+// Change avatar
+router.put('/profile/avatar', verifyToken(), isAuthenticated, changeAvatar);
 
 module.exports = router;

@@ -1,3 +1,9 @@
+const multer = require('multer');
+const { storagePath } = require('../config/multer');
+
+const storage = storagePath('profile/avatar');
+const upload = multer({ storage }).single('avatar');
+
 // Get user
 exports.getUser = (req, res) => {
   const user = req.authUser;
@@ -38,3 +44,30 @@ exports.deleteUser = async (req, res) => {
     message: 'User deleted successfully',
   });
 };
+
+// Update avatar
+exports.changeAvatar = async (req, res) => {
+  const user = req.authUser;
+
+  upload(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Cannot add profile picture. Please try again.',
+      });
+    }
+
+    user.avatar = req.file.filename;
+    const updated = user.save();
+
+    if (!updated) {
+      return res.status(400).json({
+        error: 'Cannot change avatar. Please try again.',
+      });
+    }
+    return res.status(200).json({
+      message: 'Avatar added Sucessfully.',
+    });
+  });
+};
+
+// Todo delete avatar
