@@ -1,14 +1,14 @@
 const router = require('express').Router();
 const {
-  signUp,
-  signIn,
+  register,
+  login,
 } = require('../controllers/auth');
 const { signupValidation, signinValidation } = require('./validation/validators');
 
 // Signup route
-router.post('/signup', signupValidation(), signUp);
+router.post('/register', signupValidation(), register);
 
 // Signin route
-router.post('/signin', signinValidation(), signIn);
+router.post('/login', signinValidation(), login);
 
 module.exports = router;

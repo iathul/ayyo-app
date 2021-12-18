@@ -13,7 +13,7 @@ const requestValidation = (req) => {
 };
 
 // User signup
-exports.signUp = async (req, res) => {
+exports.register = async (req, res) => {
   // Request validation
   const result = requestValidation(req);
   if (result) {
@@ -43,7 +43,7 @@ exports.signUp = async (req, res) => {
 };
 
 // User signin
-exports.signIn = async (req, res) => {
+exports.login = async (req, res) => {
   // Request validation
   const result = requestValidation(req);
   if (result) {
