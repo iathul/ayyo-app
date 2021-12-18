@@ -73,7 +73,7 @@ userSchema.methods = {
       return '';
     }
   },
-  userData() {
+  userDetails() {
     const user = {
       id: this._id,
       fullName: this.fullName(),
