@@ -15,6 +15,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.set('view engine', 'ejs');
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
