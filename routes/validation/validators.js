@@ -27,3 +27,20 @@ exports.signinValidation = () => [
     .withMessage('must contain at least 8 characters')
     .trim(),
 ];
+
+// Validate email to update password
+exports.validateEmail = () => [
+  body('email')
+    .isEmail()
+    .withMessage('must be a valid email')
+    .normalizeEmail({ gmail_remove_dots: false })
+    .toLowerCase()
+    .trim(),
+];
+
+// Validate new password
+exports.validatePassword = () => [
+  body('new_password').isLength({ min: 8 })
+    .withMessage('must contain at least 8 characters')
+    .trim(),
+];
