@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
-const { sendEmailVerificationLink } = require('./email');
+const { sendEmailVerificationLink, sendResetPswdLink } = require('./email');
 
 // Request validation
 const requestValidation = (req) => {
@@ -52,6 +52,7 @@ exports.register = async (req, res) => {
   });
 };
 
+// Verify email
 exports.verifyEmail = (req, res) => {
   const { token } = req.params;
   if (token) {
@@ -110,4 +111,65 @@ exports.login = async (req, res) => {
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '7d' });
   const authUser = user.userDetails();
   return res.json({ token, authUser });
+};
+
+// Send reset password link
+exports.sendResetPswdLink = async (req, res) => {
+  const result = requestValidation(req);
+  if (result) {
+    return res.status(422).json({
+      error: result,
+    });
+  }
+
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(400).json({
+      error: 'Invalid email',
+    });
+  }
+
+  try {
+    sendResetPswdLink(user);
+  } catch (error) {
+    console.log(error);
+  }
+
+  return res.status(200).json({
+    message: 'An email with password reset link has been sent.',
+  });
+};
+
+// Update password
+exports.updatePassword = async (req, res) => {
+  const { token } = req.params;
+  if (token) {
+    jwt.verify(token, process.env.TOKEN_SECRET, async (err, decodedToken) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Reset password link expired.',
+        });
+      }
+
+      const result = requestValidation(req);
+      if (result) {
+        return res.status(422).json({
+          error: result,
+        });
+      }
+
+      const user = await User.findOne({ email: decodedToken.email });
+      user.password = req.body.new_password;
+
+      const updated = await user.save();
+      if (!updated) {
+        return res.status(400).json({
+          error: 'Cannot update password, please try again',
+        });
+      }
+      return res.status(200).json({
+        message: 'Password updated successfully',
+      });
+    });
+  }
 };
