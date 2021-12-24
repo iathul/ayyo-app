@@ -1,6 +1,7 @@
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const File = require('../models/file');
+const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
 
 const storage = storagePath('/files');
@@ -13,12 +14,12 @@ exports.uploadFiles = (req, res) => {
         error: 'Something went wrong. please try again',
       });
     }
-    const transferId = uuidv4();
-    const data = req.files.map((file) => {
+
+    // Create and save files
+    const files = req.files.map((file) => {
       const filedata = new File({
         // eslint-disable-next-line no-underscore-dangle
         user: req.auth._id,
-        transferId,
         destination: file.destination,
         encoding: file.encoding,
         fieldname: file.fieldname,
@@ -30,15 +31,30 @@ exports.uploadFiles = (req, res) => {
       });
       return filedata;
     });
+    const newFiles = await File.insertMany(files);
+    if (!newFiles) {
+      return res.status(500).json({
+        error: 'Something went wrong. please try again',
+      });
+    }
 
-    const file = await File.insertMany(data);
-    if (!file) {
+    // Create and save packge
+    const packageId = uuidv4();
+    const packageData = new Package({
+      // eslint-disable-next-line no-underscore-dangle
+      user: req.auth._id,
+      packageId,
+      files,
+    });
+
+    const newPackage = await packageData.save();
+    if (!newPackage) {
       return res.status(500).json({
         error: 'Something went wrong. please try again',
       });
     }
     return res.status(200).json({
-      message: 'Files added successfully',
+      message: 'Package created successfully',
     });
   });
 };
