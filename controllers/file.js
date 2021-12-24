@@ -55,6 +55,7 @@ exports.uploadFiles = (req, res) => {
     }
     return res.status(200).json({
       message: 'Package created successfully',
+      packageId,
     });
   });
 };
