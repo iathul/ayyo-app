@@ -7,9 +7,6 @@ const fileSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'User',
   },
-  transferId: {
-    type: String,
-  },
   destination: {
     type: String,
   },
