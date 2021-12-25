@@ -9,6 +9,7 @@ const packageSchema = new mongoose.Schema({
   },
   packageId: {
     type: String,
+    unique: true,
   },
   files: {
     type: Array,
