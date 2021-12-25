@@ -1,5 +1,5 @@
 const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
+const { nanoid } = require('nanoid');
 const File = require('../models/file');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
@@ -7,6 +7,7 @@ const { storagePath } = require('../config/multer');
 const storage = storagePath('/files');
 const upload = multer({ storage }).array('fileData');
 
+// Add files and create packge
 exports.uploadFiles = (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
@@ -39,7 +40,7 @@ exports.uploadFiles = (req, res) => {
     }
 
     // Create and save packge
-    const packageId = uuidv4();
+    const packageId = `package_${nanoid()}`;
     const packageData = new Package({
       // eslint-disable-next-line no-underscore-dangle
       user: req.auth._id,
@@ -55,6 +56,7 @@ exports.uploadFiles = (req, res) => {
     }
     return res.status(200).json({
       message: 'Package created successfully',
+      packageId,
     });
   });
 };
