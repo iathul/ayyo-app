@@ -8,7 +8,10 @@ const options = {
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.LOCAL_DB, options);
+    const conn = await mongoose.connect(
+      process.env.NODE_ENV === 'development' ? process.env.LOCAL_DB : process.env.DB,
+      options,
+    );
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error(err);
