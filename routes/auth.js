@@ -1,31 +1,20 @@
 const router = require('express').Router();
-const {
-  register,
-  login,
-  verifyEmail,
-  sendResetPswdLink,
-  updatePassword,
-} = require('../controllers/auth');
-const {
-  signupValidation,
-  signinValidation,
-  validateEmail,
-  validatePassword,
-} = require('./validation/validators');
+const auth = require('../controllers/auth');
+const validator = require('./validation/validators');
 
 // Signup route
-router.post('/register', signupValidation(), register);
+router.post('/register', validator.signupValidation(), auth.register);
 
 // Signin route
-router.post('/login', signinValidation(), login);
+router.post('/login', validator.signinValidation(), auth.login);
 
 // Verify email
-router.get('/verify/email/:token', verifyEmail);
+router.get('/verify/email/:token', auth.verifyEmail);
 
 // Get reset password email
-router.post('/password', validateEmail(), sendResetPswdLink);
+router.post('/password', validator.validateEmail(), auth.sendResetPswdLink);
 
 // Update password
-router.post('/password/update/:token', validatePassword(), updatePassword);
+router.post('/password/update/:token', validator.validatePassword(), auth.updatePassword);
 
 module.exports = router;
