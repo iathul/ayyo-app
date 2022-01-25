@@ -25,7 +25,4 @@ app.use('/api/files', require('./routes/file'));
 const PORT = process.env.PORT || 5000;
 
 // Start server
-app.listen(
-  PORT,
-  console.log(`Server Runnig at PORT: ${PORT}`),
-);
+app.listen(PORT, console.log(`Server Runnig at PORT: ${PORT}`));
