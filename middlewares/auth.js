@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable consistent-return */
 const expressjwt = require('express-jwt');
 const User = require('../models/user');
 
