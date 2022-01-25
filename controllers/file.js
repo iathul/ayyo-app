@@ -33,7 +33,6 @@ exports.uploadFiles = (req, res) => {
     // Create and save packge
     const packageId = `package_${nanoid()}`;
     const packageData = new Package({
-      // eslint-disable-next-line no-underscore-dangle
       user: req.auth._id,
       packageId,
       files,

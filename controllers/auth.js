@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
@@ -107,7 +106,6 @@ exports.login = async (req, res) => {
     });
   }
 
-  // eslint-disable-next-line no-underscore-dangle
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '7d' });
   const authUser = user.userDetails();
   return res.json({ token, authUser });
