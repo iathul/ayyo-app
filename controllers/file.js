@@ -1,6 +1,5 @@
 const multer = require('multer');
 const { nanoid } = require('nanoid');
-const File = require('../models/file');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
 
@@ -16,11 +15,9 @@ exports.uploadFiles = (req, res) => {
       });
     }
 
-    // Create and save files
+    // Create file object
     const files = req.files.map((file) => {
-      const filedata = new File({
-        // eslint-disable-next-line no-underscore-dangle
-        user: req.auth._id,
+      const filedata = {
         destination: file.destination,
         encoding: file.encoding,
         fieldname: file.fieldname,
@@ -29,15 +26,9 @@ exports.uploadFiles = (req, res) => {
         originalname: file.originalname,
         path: file.path,
         size: file.size,
-      });
+      };
       return filedata;
     });
-    const newFiles = await File.insertMany(files);
-    if (!newFiles) {
-      return res.status(500).json({
-        error: 'Something went wrong. please try again',
-      });
-    }
 
     // Create and save packge
     const packageId = `package_${nanoid()}`;
@@ -62,6 +53,7 @@ exports.uploadFiles = (req, res) => {
 };
 
 // Create sharable link
+// Todo share via email
 exports.shareFiles = async (req, res) => {
   const { packageId } = req.params;
   const filePackage = await Package.findOne({ packageId });
