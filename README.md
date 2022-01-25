@@ -24,7 +24,7 @@ npm install
 ```
 
 Setup environment varibles 
-- `cp env.sample .env`, and modify as required
+- `cp .env.sample .env`, and modify as required
 
 
 Run ayyo in development mode
