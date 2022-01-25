@@ -23,7 +23,8 @@ npm install
 
 ```
 
-*Setup environment varibles based on .env.example and update the values based on your preferences*.
+Setup environment varibles 
+- `cp env.sample .env`, and modify as required
 
 
 Run ayyo in development mode
@@ -38,7 +39,3 @@ ayyo will be running in developing mode at
 localhost: PORT 
 
 ```
-
-
-
-
