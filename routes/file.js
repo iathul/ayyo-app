@@ -4,5 +4,11 @@ const { verifyToken, isAuthenticated } = require('../middlewares/auth');
 
 // Add files
 router.post('/add', verifyToken(), isAuthenticated, file.uploadFiles);
+router.get(
+  '/sharable-link/:packageId',
+  verifyToken(),
+  isAuthenticated,
+  file.shareFiles,
+);
 
 module.exports = router;
