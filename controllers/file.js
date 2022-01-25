@@ -60,3 +60,19 @@ exports.uploadFiles = (req, res) => {
     });
   });
 };
+
+// Create sharable link
+exports.shareFiles = async (req, res) => {
+  const { packageId } = req.params;
+  const filePackage = await Package.findOne({ packageId });
+  if (!filePackage) {
+    return res.status(404).json({
+      error: 'Package not found',
+    });
+  }
+  const fileUrl = `${process.env.BASE_URL}/files/${packageId}`;
+  return res.status(200).json({
+    message: 'Sharable Link',
+    url: fileUrl,
+  });
+};
