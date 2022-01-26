@@ -1,5 +1,7 @@
 const multer = require('multer');
 const { nanoid } = require('nanoid');
+const AdmZip = require('adm-zip');
+const fs = require('fs');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
 
@@ -61,9 +63,33 @@ exports.shareFiles = async (req, res) => {
       error: 'Package not found',
     });
   }
-  const fileUrl = `${process.env.BASE_URL}/files/${packageId}`;
+  const fileUrl = `${process.env.BASE_URL}/files/download/${packageId}`;
   return res.status(200).json({
     message: 'Sharable Link',
     url: fileUrl,
   });
+};
+
+// Download package
+exports.dowloadPackage = async (req, res) => {
+  const { packageId } = req.params;
+  const filePackage = await Package.findOne({ packageId });
+  if (!filePackage) {
+    return res.status(400).json({
+      error: 'This package has been expired',
+    });
+  }
+  if (filePackage.files.length === 1) {
+    const fileData = filePackage.files[0];
+    const filePath = fileData.path;
+    res.download(filePath);
+  } else {
+    const zipFilePath = `${Date.now()}.zip`;
+    const zip = new AdmZip();
+    filePackage.files.forEach((file) => {
+      zip.addLocalFile(file.path);
+    });
+    fs.writeFileSync(zipFilePath, zip.toBuffer());
+    res.download(zipFilePath);
+  }
 };
