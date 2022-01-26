@@ -100,6 +100,12 @@ exports.login = async (req, res) => {
     });
   }
 
+  if (!user.isEmailVerified || !user.isVerified) {
+    return res.status(400).json({
+      error: 'Please verify your account.',
+    });
+  }
+
   if (!user.autheticate(password)) {
     return res.status(401).json({
       error: 'Invalid password',
