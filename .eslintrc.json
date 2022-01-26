@@ -13,6 +13,7 @@
     "rules": {
       "no-underscore-dangle": "off",
       "no-console": "off",
-      "consistent-return": "off"
+      "consistent-return": "off",
+      "comma-dangle": "off"
     }
 }
