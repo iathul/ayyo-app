@@ -2,6 +2,7 @@ const multer = require('multer');
 const { nanoid } = require('nanoid');
 const AdmZip = require('adm-zip');
 const fs = require('fs');
+const path = require('path');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
 
@@ -79,17 +80,36 @@ exports.dowloadPackage = async (req, res) => {
       error: 'This package has been expired',
     });
   }
+  // Download package with single file
   if (filePackage.files.length === 1) {
     const fileData = filePackage.files[0];
     const filePath = fileData.path;
     res.download(filePath);
   } else {
+    // Create zip for package with multiple files
     const zipFilePath = `${Date.now()}.zip`;
     const zip = new AdmZip();
     filePackage.files.forEach((file) => {
       zip.addLocalFile(file.path);
     });
-    fs.writeFileSync(zipFilePath, zip.toBuffer());
-    res.download(zipFilePath);
+    // Zip output
+    const dir = './zip';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    // Save zip and download zip
+    const zipOutputPath = path.join(process.cwd(), '/zip');
+    fs.writeFileSync(`${zipOutputPath}/${zipFilePath}`, zip.toBuffer());
+    res.download(`${zipOutputPath}/${zipFilePath}`, async (err) => {
+      if (err) {
+        console.log(err);
+      }
+      // Delete zip once download is complete
+      await fs.unlink(`${zipOutputPath}/${zipFilePath}`, (error) => {
+        if (error) {
+          console.log(error);
+        }
+      });
+    });
   }
 };
