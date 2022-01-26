@@ -15,10 +15,11 @@ const packageSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+}, { timestamps: true });
+
+packageSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: process.env.PACKAGE_EXPIRY },
+);
 
 module.exports = mongoose.model('Package', packageSchema);
