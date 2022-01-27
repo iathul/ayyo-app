@@ -19,7 +19,7 @@ const packageSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['package created', 'package downloaded'],
-      default: 'created',
+      default: 'package created',
     },
   },
   { timestamps: true }
