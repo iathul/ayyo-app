@@ -10,11 +10,6 @@ router.get(
   isAuthenticated,
   file.shareFiles,
 );
-router.get(
-  '/download/:packageId',
-  verifyToken(),
-  isAuthenticated,
-  file.dowloadPackage,
-);
+router.get('/download/:packageId', file.dowloadPackage);
 
 module.exports = router;
