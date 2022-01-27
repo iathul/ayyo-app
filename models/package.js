@@ -21,6 +21,9 @@ const packageSchema = new mongoose.Schema(
       enum: ['package created', 'package downloaded'],
       default: 'package created',
     },
+    package_expiry_date: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
