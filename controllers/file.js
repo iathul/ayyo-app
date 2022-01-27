@@ -2,6 +2,7 @@ const multer = require('multer');
 const { nanoid } = require('nanoid');
 const AdmZip = require('adm-zip');
 const fs = require('fs');
+const moment = require('moment');
 const path = require('path');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
@@ -39,6 +40,7 @@ exports.uploadFiles = (req, res) => {
       user: req.auth._id,
       packageId,
       files,
+      package_expiry_date: moment().add(process.env.PACKAGE_EXPIRY_DAYS, 'd'),
     });
 
     const newPackage = await packageData.save();
