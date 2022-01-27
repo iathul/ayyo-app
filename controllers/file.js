@@ -77,11 +77,14 @@ exports.shareFiles = async (req, res) => {
 exports.dowloadPackage = async (req, res) => {
   const { packageId } = req.params;
   const filePackage = await Package.findOne({ packageId });
-  if (!filePackage) {
+
+  // Check if package is expired
+  if (!filePackage || filePackage.package_expiry_date < moment()) {
     return res.status(400).json({
-      error: 'This package has been expired',
+      error: 'This package has been expired'
     });
   }
+
   // Download package with single file
   if (filePackage.files.length === 1) {
     const fileData = filePackage.files[0];
@@ -94,7 +97,7 @@ exports.dowloadPackage = async (req, res) => {
     filePackage.files.forEach((file) => {
       zip.addLocalFile(file.path);
     });
-    // Zip output
+    // Zip output folder
     const dir = './zip';
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
