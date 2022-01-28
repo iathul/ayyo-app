@@ -18,6 +18,10 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 
 // Routes
+app.get('/', (req, res) => {
+  res.send('<h3> <center> Hello from ayyo </center> </h3>');
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/user'));
 app.use('/api/files', require('./routes/file'));
