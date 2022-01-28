@@ -28,6 +28,14 @@ Setup environment varibles
 - `cp .env.sample .env`, and modify as required
 
 
+Run ayyo in production mode
+
+```
+npm start
+
+```
+
+
 Run ayyo in development mode
 
 ```
