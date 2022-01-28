@@ -66,7 +66,11 @@ exports.shareFiles = async (req, res) => {
       error: 'Package not found',
     });
   }
-  const fileUrl = `${process.env.NODE_ENV === 'development' ? process.env.BASE_URL : process.env.BASE_URL_PROD}/files/download/${packageId}`;
+  const fileUrl = `${
+    process.env.NODE_ENV === 'development'
+      ? process.env.BASE_URL
+      : process.env.BASE_URL_PROD
+  }/files/download/${packageId}`;
   return res.status(200).json({
     message: 'Sharable Link',
     url: fileUrl,
