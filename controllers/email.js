@@ -10,7 +10,11 @@ const template = path.join(process.cwd(), '/views/emails');
 exports.sendEmailVerificationLink = (user) => {
   const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET, { expiresIn: '10m' });
 
-  const url = `${process.env.BASE_URL}/api/auth/verify/email/${token}`;
+  const url = `${
+    process.env.NODE_ENV === 'development'
+      ? process.env.BASE_URL
+      : process.env.BASE_URL_PROD
+  }/api/auth/verify/email/${token}`;
 
   ejs.renderFile(`${template}/verifyAccount.ejs`, { name: user.fullName(), url }, (err, data) => {
     if (err) {
@@ -37,7 +41,11 @@ exports.sendEmailVerificationLink = (user) => {
 exports.sendResetPswdLink = (user) => {
   const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET, { expiresIn: '10m' });
 
-  const url = `${process.env.BASE_URL}/api/auth/password/update/${token}`;
+  const url = `${
+    process.env.NODE_ENV === 'development'
+      ? process.env.BASE_URL
+      : process.env.BASE_URL_PROD
+  }/api/auth/password/update/${token}`;
 
   ejs.renderFile(`${template}/resetPswd.ejs`, { name: user.fullName(), url }, (err, data) => {
     if (err) {
