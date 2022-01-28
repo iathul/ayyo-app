@@ -7,7 +7,7 @@ const path = require('path');
 const Package = require('../models/package');
 const { storagePath } = require('../config/multer');
 
-const storage = storagePath('/files');
+const storage = storagePath('files');
 const upload = multer({ storage }).array('fileData');
 
 // Add files and create packge
