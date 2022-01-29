@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
-const { sendEmailVerificationLink, sendResetPswdLink } = require('./email');
+const { sendEmailVerificationLink, sendResetPswdLink } = require('../helpers/email');
 
 // Request validation
 const requestValidation = (req) => {
