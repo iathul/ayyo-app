@@ -5,15 +5,16 @@ const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const Package = require('../models/package');
-const { storagePath } = require('../config/multer');
+const { storagePath, s3Storage } = require('../config/multer');
 
-const storage = storagePath('files');
+const storage = process.env.NODE_ENV === 'development' ? storagePath('files') : s3Storage();
 const upload = multer({ storage }).array('fileData');
 
 // Add files and create packge
 exports.uploadFiles = (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
+      console.log(err);
       return res.status(500).json({
         error: 'Something went wrong. please try again',
       });
@@ -22,7 +23,7 @@ exports.uploadFiles = (req, res) => {
     // Create file object
     const files = req.files.map((file) => {
       const filedata = {
-        destination: file.destination,
+        destination: file.destination ? file.destination : file.location,
         encoding: file.encoding,
         fieldname: file.fieldname,
         filename: file.filename,
