@@ -79,46 +79,58 @@ exports.shareFiles = async (req, res) => {
 
 // Download package
 exports.dowloadPackage = async (req, res) => {
-  const { packageId } = req.params;
-  const filePackage = await Package.findOne({ packageId });
+  try {
+    const { packageId } = req.params;
+    const filePackage = await Package.findOne({ packageId });
 
-  // Check if package is expired
-  if (!filePackage || filePackage.package_expiry_date < moment()) {
-    return res.status(400).json({
-      error: 'This package has been expired'
-    });
-  }
-
-  // Download package with single file
-  if (filePackage.files.length === 1) {
-    const fileData = filePackage.files[0];
-    const filePath = fileData.path;
-    res.download(filePath);
-  } else {
-    // Create zip for package with multiple files
-    const zipFilePath = `${Date.now()}.zip`;
-    const zip = new AdmZip();
-    filePackage.files.forEach((file) => {
-      zip.addLocalFile(file.path);
-    });
-    // Zip output folder
-    const dir = './zip';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
+    // Check if package is expired
+    if (!filePackage || filePackage.package_expiry_date < moment()) {
+      return res.status(400).json({
+        error: 'This package has been expired',
+      });
     }
-    // Save zip and download zip
-    const zipOutputPath = path.join(process.cwd(), '/zip');
-    fs.writeFileSync(`${zipOutputPath}/${zipFilePath}`, zip.toBuffer());
-    res.download(`${zipOutputPath}/${zipFilePath}`, async (err) => {
-      if (err) {
-        console.log(err);
-      }
-      // Delete zip once download is complete
-      await fs.unlink(`${zipOutputPath}/${zipFilePath}`, (error) => {
-        if (error) {
-          console.log(error);
+
+    // Download package with single file
+    if (filePackage.files.length === 1) {
+      const fileData = filePackage.files[0];
+      const filePath = fileData.path;
+      res.download(filePath, (err) => {
+        if (err) {
+          return res.status(500).json({
+            error: 'Unable to download the package. please try again',
+          });
         }
       });
+    } else {
+      // Create zip for package with multiple files
+      const zipFilePath = `${Date.now()}.zip`;
+      const zip = new AdmZip();
+      filePackage.files.forEach((file) => {
+        zip.addLocalFile(file.path);
+      });
+      // Zip output folder
+      const dir = './zip';
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+      // Save zip and download zip
+      const zipOutputPath = path.join(process.cwd(), '/zip');
+      fs.writeFileSync(`${zipOutputPath}/${zipFilePath}`, zip.toBuffer());
+      res.download(`${zipOutputPath}/${zipFilePath}`, async (err) => {
+        if (err) {
+          console.log(err);
+        }
+        // Delete zip once download is complete
+        await fs.unlink(`${zipOutputPath}/${zipFilePath}`, (error) => {
+          if (error) {
+            console.log(error);
+          }
+        });
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Unable to download the package. please try again',
     });
   }
 };
