@@ -3,6 +3,7 @@ require('dotenv').config();
 
 // Import packages
 const express = require('express');
+const cors = require('cors');
 
 // Import database connection
 const connectDB = require('./config/db');
@@ -13,6 +14,7 @@ connectDB();
 // Create an express app
 const app = express();
 
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.set('view engine', 'ejs');
