@@ -24,9 +24,8 @@ app.get('/', (req, res) => {
   res.send('<h3> <center> Hello from ayyo </center> </h3>');
 });
 
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/user'));
-app.use('/api/files', require('./routes/file'));
+// Api routes
+app.use('/api/v1', require('./routes/index'));
 
 const PORT = process.env.PORT || 5000;
 
