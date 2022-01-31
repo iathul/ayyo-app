@@ -6,6 +6,7 @@ const moment = require('moment');
 const path = require('path');
 const Package = require('../models/package');
 const { storagePath, s3Storage } = require('../config/multer');
+const s3 = require('../config/S3Config');
 
 const storage = process.env.NODE_ENV === 'development' ? storagePath('files') : s3Storage();
 const upload = multer({ storage }).array('fileData');
@@ -25,6 +26,7 @@ exports.uploadFiles = (req, res) => {
       const filedata = {
         destination: file.destination ? file.destination : file.location,
         encoding: file.encoding,
+        metadata: file.metadata,
         fieldname: file.fieldname,
         filename: file.filename,
         mimetype: file.mimetype,
@@ -95,13 +97,23 @@ exports.dowloadPackage = async (req, res) => {
     if (filePackage.files.length === 1) {
       const fileData = filePackage.files[0];
       const filePath = fileData.path;
-      res.download(filePath, (err) => {
-        if (err) {
-          return res.status(500).json({
-            error: 'Unable to download the package. please try again',
-          });
-        }
-      });
+      if (process.env.NODE_ENV === 'development') {
+        res.download(filePath, (err) => {
+          if (err) {
+            return res.status(500).json({
+              error: 'Unable to download the package. please try again',
+            });
+          }
+        });
+      } else {
+        const options = {
+          Bucket: 'ayyo-file-storage',
+          Key: fileData.metadata.fieldName,
+        };
+        res.attachment(fileData.metadata.fieldName);
+        const fileStream = s3.getObject(options).createReadStream();
+        fileStream.pipe(res);
+      }
     } else {
       // Create zip for package with multiple files
       const zipFilePath = `${Date.now()}.zip`;
