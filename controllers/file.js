@@ -22,7 +22,9 @@ exports.uploadFiles = (req, res) => {
     }
 
     // Create file object
+    let packageDestination;
     const files = req.files.map((file) => {
+      packageDestination = file.destination;
       const filedata = {
         destination: file.destination ? file.destination : file.location,
         encoding: file.encoding,
@@ -44,6 +46,7 @@ exports.uploadFiles = (req, res) => {
       packageId,
       files,
       package_expiry_date: moment().add(process.env.PACKAGE_EXPIRY_DAYS, 'd'),
+      package_destination: packageDestination,
     });
 
     const newPackage = await packageData.save();
@@ -118,14 +121,14 @@ exports.dowloadPackage = async (req, res) => {
       // Create zip for package with multiple files
       const zipFilePath = `${Date.now()}.zip`;
       const zip = new AdmZip();
-      filePackage.files.forEach((file) => {
-        zip.addLocalFile(file.path);
-      });
+      zip.addLocalFolder(filePackage.package_destination);
+
       // Zip output folder
       const dir = './zip';
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
       }
+
       // Save zip and download zip
       const zipOutputPath = path.join(process.cwd(), '/zip');
       fs.writeFileSync(`${zipOutputPath}/${zipFilePath}`, zip.toBuffer());
