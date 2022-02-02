@@ -10,7 +10,9 @@ const s3 = require('../config/S3Config');
 
 exports.uploadFiles = (req, res) => {
   const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
-  const storage = process.env.NODE_ENV === 'development' ? storagePath(uniqueFolder) : s3Storage();
+  const storage = process.env.NODE_ENV === 'development'
+    ? storagePath(`files/${uniqueFolder}`)
+    : s3Storage();
   const upload = multer({ storage }).array('fileData');
 
   upload(req, res, async (err) => {
