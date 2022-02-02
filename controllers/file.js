@@ -8,11 +8,11 @@ const Package = require('../models/package');
 const { storagePath, s3Storage } = require('../config/multer');
 const s3 = require('../config/S3Config');
 
-const storage = process.env.NODE_ENV === 'development' ? storagePath('files') : s3Storage();
-const upload = multer({ storage }).array('fileData');
-
-// Add files and create packge
 exports.uploadFiles = (req, res) => {
+  const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
+  const storage = process.env.NODE_ENV === 'development' ? storagePath(uniqueFolder) : s3Storage();
+  const upload = multer({ storage }).array('fileData');
+
   upload(req, res, async (err) => {
     if (err) {
       console.log(err);
