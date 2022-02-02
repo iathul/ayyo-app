@@ -1,9 +1,6 @@
 const multer = require('multer');
 const { storagePath } = require('../config/multer');
 
-const storage = storagePath('profile/avatar');
-const upload = multer({ storage }).single('avatar');
-
 // Get user
 exports.getUser = (req, res) => {
   const user = req.authUser;
@@ -48,6 +45,9 @@ exports.deleteUser = async (req, res) => {
 // Update avatar
 exports.changeAvatar = async (req, res) => {
   const user = req.authUser;
+  const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
+  const storage = storagePath(`profile/avatar/${uniqueFolder}`);
+  const upload = multer({ storage }).single('avatar');
 
   upload(req, res, (err) => {
     if (err) {
