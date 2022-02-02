@@ -6,8 +6,8 @@ const s3 = require('./S3Config');
 // For development
 exports.storagePath = (name) => {
   const storage = multer.diskStorage({
-    destination: `./media/${name}`,
-    filename: (req, file, cb) => cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`),
+    destination: `./media/files/${name}`,
+    filename: (req, file, cb) => cb(null, `${file.originalname}`),
   });
   return storage;
 };
