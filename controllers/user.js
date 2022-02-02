@@ -46,7 +46,7 @@ exports.deleteUser = async (req, res) => {
 exports.changeAvatar = async (req, res) => {
   const user = req.authUser;
   const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
-  const storage = storagePath(`profile/avatar/${uniqueFolder}`);
+  const storage = storagePath(`avatar/${uniqueFolder}`);
   const upload = multer({ storage }).single('avatar');
 
   upload(req, res, (err) => {
@@ -56,7 +56,7 @@ exports.changeAvatar = async (req, res) => {
       });
     }
 
-    user.avatar = req.file.filename;
+    user.avatar = req.file.path;
     const updated = user.save();
 
     if (!updated) {
