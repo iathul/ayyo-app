@@ -24,6 +24,9 @@ const packageSchema = new mongoose.Schema(
     package_expiry_date: {
       type: Date,
     },
+    package_destination: {
+      type: String,
+    }
   },
   { timestamps: true }
 );
