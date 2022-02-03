@@ -21,10 +21,6 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
-  isEmailVerified: {
-    type: Boolean,
-    default: false,
-  },
   salt: {
     type: String,
   },
