@@ -63,7 +63,7 @@ exports.verifyEmail = (req, res) => {
 
       const verified = await User.findOneAndUpdate(
         { email: decodedToken.email },
-        { $set: { isEmailVerified: true, isVerified: true } },
+        { $set: { isVerified: true } },
         { new: true },
       );
 
@@ -99,7 +99,7 @@ exports.login = async (req, res) => {
     });
   }
 
-  if (!user.isEmailVerified || !user.isVerified) {
+  if (!user.isVerified) {
     return res.status(400).json({
       error: 'Please verify your account.',
     });
