@@ -39,7 +39,6 @@ exports.register = async (req, res) => {
     });
   }
 
-  // Todo email queue
   try {
     sendEmailVerificationLink(newUser);
   } catch (error) {
