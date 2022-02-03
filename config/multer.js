@@ -1,6 +1,5 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const path = require('path');
 const s3 = require('./S3Config');
 
 // For development
@@ -13,21 +12,19 @@ exports.storagePath = (name) => {
 };
 
 // For production
-exports.s3Storage = () => {
+exports.s3Storage = (name) => {
   const storageS3 = multerS3({
     s3,
     bucket: 'ayyo-file-storage',
     metadata(req, file, cb) {
       cb(null, {
-        fieldName: `${file.fieldname}_${Date.now()}${path.extname(
-          file.originalname
-        )}`,
+        fieldName: `${name}`,
       });
     },
     key(req, file, cb) {
       cb(
         null,
-        `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+        `${name}/${file.originalname}`
       );
     },
   });
