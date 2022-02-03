@@ -12,7 +12,7 @@ exports.uploadFiles = (req, res) => {
   const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
   const storage = process.env.NODE_ENV === 'development'
     ? storagePath(`files/${uniqueFolder}`)
-    : s3Storage();
+    : s3Storage(uniqueFolder);
   const upload = multer({ storage }).array('fileData');
 
   upload(req, res, async (err) => {
@@ -113,9 +113,11 @@ exports.dowloadPackage = async (req, res) => {
       } else {
         const options = {
           Bucket: 'ayyo-file-storage',
-          Key: fileData.metadata.fieldName,
+          Key: `${fileData.metadata.fieldName}/${fileData.originalname}`,
         };
-        res.attachment(fileData.metadata.fieldName);
+        res.attachment(
+          `${fileData.metadata.fieldName}/${fileData.originalname}`
+        );
         const fileStream = s3.getObject(options).createReadStream();
         fileStream.pipe(res);
       }
