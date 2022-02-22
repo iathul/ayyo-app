@@ -3,15 +3,15 @@ const user = require('../controllers/user');
 const { verifyToken, isAuthenticated } = require('../middlewares/auth');
 
 // Get user
-router.get('/getUser', verifyToken(), isAuthenticated, user.getUser);
+router.get('/', verifyToken(), isAuthenticated, user.getUser);
 
 // Update user
-router.put('/updateUser', verifyToken(), isAuthenticated, user.updateUser);
+router.put('/', verifyToken(), isAuthenticated, user.updateUser);
 
 // Delete user
-router.delete('/deleteUser', verifyToken(), isAuthenticated, user.deleteUser);
+router.delete('/', verifyToken(), isAuthenticated, user.deleteUser);
 
 // Change avatar
-router.put('/profile/avatar', verifyToken(), isAuthenticated, user.changeAvatar);
+router.put('/avatar', verifyToken(), isAuthenticated, user.changeAvatar);
 
 module.exports = router;
