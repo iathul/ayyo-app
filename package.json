@@ -44,6 +44,7 @@
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.15"
   }
 }
