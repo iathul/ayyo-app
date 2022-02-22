@@ -9,10 +9,10 @@ const { storagePath, s3Storage } = require('../config/multer');
 const s3 = require('../config/S3Config');
 
 exports.uploadFiles = (req, res) => {
-  const uniqueFolder = nanoid(6);
+  const fileLoc = nanoid(6);
   const storage = process.env.NODE_ENV === 'development'
-    ? storagePath(`files/${uniqueFolder}`)
-    : s3Storage(uniqueFolder);
+    ? storagePath(`files/${fileLoc}`)
+    : s3Storage(fileLoc);
   const upload = multer({ storage }).array('fileData');
 
   upload(req, res, async (err) => {
