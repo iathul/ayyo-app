@@ -1,4 +1,5 @@
 const multer = require('multer');
+const { nanoid } = require('nanoid');
 const { storagePath } = require('../config/multer');
 
 // Get user
@@ -45,8 +46,8 @@ exports.deleteUser = async (req, res) => {
 // Update avatar
 exports.changeAvatar = async (req, res) => {
   const user = req.authUser;
-  const uniqueFolder = Math.floor(100000 + Math.random() * 900000);
-  const storage = storagePath(`avatar/${uniqueFolder}`);
+  const fileLoc = nanoid(6);
+  const storage = storagePath(`avatar/${fileLoc}`);
   const upload = multer({ storage }).single('avatar');
 
   upload(req, res, (err) => {
