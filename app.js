@@ -1,11 +1,10 @@
+/* eslint-disable global-require */
 // Load environment variables
 require('dotenv').config();
 
 // Import packages
 const express = require('express');
 const cors = require('cors');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const morgan = require('morgan');
 
 // Import database connection
 const connectDB = require('./config/db');
@@ -22,7 +21,13 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 
 // Logg requests
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  const morgan = require('morgan');
+  app.use(morgan('dev'));
+}
+
+// app.use(morgan('dev'));
 
 // Routes
 app.get('/', (req, res) => {
