@@ -1,4 +1,5 @@
 /* eslint-disable global-require */
+
 // Load environment variables
 require('dotenv').config();
 
@@ -26,8 +27,6 @@ if (process.env.NODE_ENV === 'development') {
   const morgan = require('morgan');
   app.use(morgan('dev'));
 }
-
-// app.use(morgan('dev'));
 
 // Routes
 app.get('/', (req, res) => {
