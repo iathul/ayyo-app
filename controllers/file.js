@@ -24,13 +24,11 @@ exports.uploadFiles = (req, res) => {
     }
 
     // Create file object
-    let packageDestination;
     const files = req.files.map((file) => {
-      packageDestination = file.destination;
       const filedata = {
         destination: file.destination ? file.destination : file.location,
         encoding: file.encoding,
-        metadata: file.metadata,
+        metadata: file.metadata ? file.metadata : null,
         fieldname: file.fieldname,
         filename: file.filename,
         mimetype: file.mimetype,
@@ -40,6 +38,11 @@ exports.uploadFiles = (req, res) => {
       };
       return filedata;
     });
+
+    // Package destination
+    const packageDestination = process.env.NODE_ENV === 'development'
+      ? `./media/files/${fileLoc}`
+      : `${fileLoc}`;
 
     // Create and save packge
     const packageId = `package_${nanoid()}`;
@@ -123,25 +126,25 @@ exports.dowloadPackage = async (req, res) => {
       }
     } else {
       // Create zip for package with multiple files
-      const zipFilePath = `${Date.now()}.zip`;
+      const zipFile = `${Date.now()}.zip`;
       const zip = new AdmZip();
       zip.addLocalFolder(filePackage.package_destination);
 
       // Zip output folder
-      const dir = './zip';
+      const dir = './downloads';
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
       }
 
       // Save zip and download zip
-      const zipOutputPath = path.join(process.cwd(), '/zip');
-      fs.writeFileSync(`${zipOutputPath}/${zipFilePath}`, zip.toBuffer());
-      res.download(`${zipOutputPath}/${zipFilePath}`, async (err) => {
+      const zipFilePath = path.join(process.cwd(), dir);
+      fs.writeFileSync(`${zipFilePath}/${zipFile}`, zip.toBuffer());
+      res.download(`${zipFilePath}/${zipFile}`, async (err) => {
         if (err) {
           console.log(err);
         }
         // Delete zip once download is complete
-        await fs.unlink(`${zipOutputPath}/${zipFilePath}`, (error) => {
+        await fs.unlink(`${zipFilePath}/${zipFile}`, (error) => {
           if (error) {
             console.log(error);
           }
