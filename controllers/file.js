@@ -103,7 +103,7 @@ exports.dowloadPackage = async (req, res) => {
 
     // Download package with single file
     if (filePackage.files.length === 1) {
-      const filePath = filePackage.package_destination;
+      const filePath = `${filePackage.package_destination}/${filePackage.files[0].originalname}`;
       if (process.env.NODE_ENV === 'development') {
         res.download(filePath, (err) => {
           if (err) {
@@ -116,11 +116,9 @@ exports.dowloadPackage = async (req, res) => {
         // Download single file from S3
         const options = {
           Bucket: 'ayyo-file-storage',
-          Key: `${filePackage.package_destination}/${filePackage.files[0].originalname}`,
+          Key: filePath,
         };
-        res.attachment(
-          `${filePackage.package_destination}/${filePackage.files[0].originalname}`
-        );
+        res.attachment(filePath);
         const fileStream = s3.getObject(options).createReadStream();
         fileStream.pipe(res);
       }
