@@ -125,11 +125,11 @@ exports.dowloadPackage = async (req, res) => {
       }
     }
     if (filePackage.files.length > 1) {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
         // Download package with multiple files
         const fileDir = `./downloads/${filePackage.package_destination}`;
         if (!fs.existsSync(fileDir)) {
-          fs.mkdirSync(fileDir);
+          fs.mkdirSync(fileDir, { recursive: true });
         }
         let complete = 0;
         const zip = new AdmZip();
