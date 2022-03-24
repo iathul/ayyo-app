@@ -18,16 +18,16 @@ exports.uploadFiles = (req, res) => {
     if (err) {
       console.log(err);
       return res.status(500).json({
-        error: 'Something went wrong. please try again',
+        error: 'Failed to upload files. Please try again.',
       });
     }
 
     // Create file object
     const files = req.files.map((file) => {
       const filedata = {
-        destination: file.destination ? file.destination : file.location,
+        destination: file.location,
         encoding: file.encoding,
-        metadata: file.metadata ? file.metadata : null,
+        metadata: file.metadata,
         fieldname: file.fieldname,
         filename: file.filename,
         mimetype: file.mimetype,
@@ -38,9 +38,6 @@ exports.uploadFiles = (req, res) => {
       return filedata;
     });
 
-    // Package destination
-    const packageDestination = process.env.NODE_ENV === `${fileLoc}`;
-
     // Create and save packge
     const packageId = `package_${nanoid()}`;
     const packageData = new Package({
@@ -48,17 +45,17 @@ exports.uploadFiles = (req, res) => {
       packageId,
       files,
       package_expiry_date: moment().add(process.env.PACKAGE_EXPIRY_DAYS, 'd'),
-      package_destination: packageDestination,
+      package_destination: `${fileLoc}`
     });
 
     const newPackage = await packageData.save();
     if (!newPackage) {
       return res.status(500).json({
-        error: 'Something went wrong. please try again',
+        error: 'Failed to create package. Please try again.',
       });
     }
     return res.status(200).json({
-      message: 'Package created successfully',
+      message: 'Package created successfully.',
       packageId,
     });
   });
@@ -71,16 +68,14 @@ exports.shareFiles = async (req, res) => {
   const filePackage = await Package.findOne({ packageId });
   if (!filePackage) {
     return res.status(404).json({
-      error: 'Package not found',
+      error: 'Package not found.',
     });
   }
-  const fileUrl = `${
-    process.env.NODE_ENV === 'development'
-      ? process.env.BASE_URL
-      : process.env.BASE_URL_PROD
+  const fileUrl = `${process.env.NODE_ENV === 'development' ? process.env.BASE_URL
+    : process.env.BASE_URL_PROD
   }/files/download/${packageId}`;
   return res.status(200).json({
-    message: 'Sharable Link',
+    message: 'Sharable Link.',
     url: fileUrl,
   });
 };
@@ -94,7 +89,7 @@ exports.dowloadPackage = async (req, res) => {
     // Check if package is expired
     if (!filePackage || filePackage.package_expiry_date < moment()) {
       return res.status(400).json({
-        error: 'This package has been expired',
+        error: 'This package has been expired.',
       });
     }
 
@@ -134,7 +129,7 @@ exports.dowloadPackage = async (req, res) => {
         writeStream.on('finish', () => {
           complete += 1;
           if (complete === filePackage.files.length) {
-            zip.addLocalFolder(fileDir, filePackage.packageId);
+            zip.addLocalFolder(fileDir);
             const zipFile = zip.toBuffer();
             res.attachment(`${Date.now()}.zip`);
             const zipStream = new PassThrough();
@@ -148,7 +143,7 @@ exports.dowloadPackage = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      error: 'Unable to download the package. please try again',
+      error: 'Unable to download the package. Please try again.',
     });
   }
 };
