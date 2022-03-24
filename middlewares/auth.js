@@ -8,7 +8,13 @@ exports.verifyToken = () => [
     algorithms: ['HS256'],
   }),
   (err, req, res, next) => {
-    res.status(err.status).json({ error: err.message });
+    if (err) {
+      return res
+        .status(err.status)
+        .json({
+          error: 'Token expired. You are notauthenticated. Please login.',
+        });
+    }
     next();
   },
 ];
