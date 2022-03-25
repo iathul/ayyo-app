@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const { ObjectId } = mongoose.Schema;
 
@@ -30,6 +31,9 @@ const packageSchema = new mongoose.Schema(
     package_download_count: {
       type: Number,
       default: 0,
+    },
+    package_last_download_at: {
+      type: Date,
     }
   },
   { timestamps: true }
@@ -41,6 +45,7 @@ packageSchema.methods = {
     const packageData = await Package.findOne({ packageId });
     packageData.status = 'downloaded';
     packageData.package_download_count += 1;
+    packageData.package_last_download_at = moment();
     await packageData.save();
   }
 };
