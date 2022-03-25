@@ -1,7 +1,6 @@
 const ejs = require('ejs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const transporter = require('../config/nodemailer');
 const sendMailQueue = require('../config/bull');
 
 // Template base path
@@ -34,29 +33,18 @@ exports.sendEmailVerificationLink = async (user) => {
       console.log('Error rendering email template');
     }
 
-    const mailOptions = {
-      from: process.env.Email,
-      to: user.email,
-      subject: 'Confirm your email',
-      html: mailData,
+    const jobData = {
+      mailOptions: {
+        from: process.env.Email,
+        to: user.email,
+        subject: 'Confirm your email',
+        html: mailData,
+      },
+      response: 'Email verification link has been sent',
     };
 
     // Producer: adds jobs to que.
-    sendMailQueue.add(mailOptions, options);
-
-    // Consumer: this gets called each time the producer receives a new email.
-    sendMailQueue.process(async (job) => {
-      await transporter.sendMail(job.data, (error, info) => {
-        if (error) {
-          console.log(error.message);
-        }
-        if (info) {
-          console.log(
-            `Email verification email has been sent: ${info.response}`
-          );
-        }
-      });
-    });
+    sendMailQueue.add(jobData, options);
   } catch (error) {
     console.log(error.message);
   }
@@ -84,27 +72,17 @@ exports.sendResetPswdLink = async (user) => {
       console.log('Error rendering email template');
     }
 
-    const mailOptions = {
-      from: process.env.Email,
-      to: user.email,
-      subject: 'Reset Your Password',
-      html: mailData,
+    const jobData = {
+      mailOptions: {
+        from: process.env.Email,
+        to: user.email,
+        subject: 'Reset your password',
+        html: mailData,
+      },
+      response: 'Reset password email has been sent',
     };
-
     // Producer: adds jobs to que.
-    sendMailQueue.add(mailOptions, options);
-
-    // Consumer: this gets called each time the producer receives a new email.
-    sendMailQueue.process(async (job) => {
-      await transporter.sendMail(job.data, (error, info) => {
-        if (error) {
-          console.log(error.message);
-        }
-        if (info) {
-          console.log(`Reset password email has been sent: ${info.response}`);
-        }
-      });
-    });
+    sendMailQueue.add(jobData, options);
   } catch (error) {
     console.log(error.message);
   }

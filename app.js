@@ -36,6 +36,11 @@ app.get('/', (req, res) => {
 // Api routes
 app.use('/api/v1', require('./routes/index'));
 
+// Import and run jobs
+const runJobs = require('./jobRunner');
+
+runJobs();
+
 const PORT = process.env.PORT || 5000;
 
 // Start server
