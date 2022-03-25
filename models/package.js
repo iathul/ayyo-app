@@ -3,6 +3,33 @@ const moment = require('moment');
 
 const { ObjectId } = mongoose.Schema;
 
+const file = {
+  destination: {
+    type: String,
+  },
+  encoding: {
+    type: String,
+  },
+  fieldname: {
+    type: String,
+  },
+  filename: {
+    type: String,
+  },
+  mimetype: {
+    type: String,
+  },
+  metadata: {
+    type: Object,
+  },
+  originalname: {
+    type: String,
+  },
+  size: {
+    type: Number,
+  },
+};
+
 const packageSchema = new mongoose.Schema(
   {
     user: {
@@ -13,10 +40,7 @@ const packageSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    files: {
-      type: Array,
-      default: [],
-    },
+    files: [file],
     status: {
       type: String,
       enum: ['created', 'downloaded'],
