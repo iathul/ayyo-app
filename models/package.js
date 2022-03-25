@@ -18,17 +18,31 @@ const packageSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['package created', 'package downloaded'],
-      default: 'package created',
+      enum: ['created', 'downloaded'],
+      default: 'created',
     },
     package_expiry_date: {
       type: Date,
     },
     package_destination: {
       type: String,
+    },
+    package_download_count: {
+      type: Number,
+      default: 0,
     }
   },
   { timestamps: true }
 );
+
+packageSchema.methods = {
+  async updatePackageStatus(packageId) {
+    const Package = mongoose.model('Package');
+    const packageData = await Package.findOne({ packageId });
+    packageData.status = 'downloaded';
+    packageData.package_download_count += 1;
+    await packageData.save();
+  }
+};
 
 module.exports = mongoose.model('Package', packageSchema);
