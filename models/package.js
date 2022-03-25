@@ -1,6 +1,34 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const { ObjectId } = mongoose.Schema;
+
+const file = {
+  destination: {
+    type: String,
+  },
+  encoding: {
+    type: String,
+  },
+  fieldname: {
+    type: String,
+  },
+  filename: {
+    type: String,
+  },
+  mimetype: {
+    type: String,
+  },
+  metadata: {
+    type: Object,
+  },
+  originalname: {
+    type: String,
+  },
+  size: {
+    type: Number,
+  },
+};
 
 const packageSchema = new mongoose.Schema(
   {
@@ -12,10 +40,7 @@ const packageSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    files: {
-      type: Array,
-      default: [],
-    },
+    files: [file],
     status: {
       type: String,
       enum: ['created', 'downloaded'],
@@ -30,6 +55,9 @@ const packageSchema = new mongoose.Schema(
     package_download_count: {
       type: Number,
       default: 0,
+    },
+    package_last_download_at: {
+      type: Date,
     }
   },
   { timestamps: true }
@@ -41,6 +69,7 @@ packageSchema.methods = {
     const packageData = await Package.findOne({ packageId });
     packageData.status = 'downloaded';
     packageData.package_download_count += 1;
+    packageData.package_last_download_at = moment();
     await packageData.save();
   }
 };
