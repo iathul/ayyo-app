@@ -85,6 +85,7 @@ exports.dowloadPackage = async (req, res) => {
   try {
     const { packageId } = req.params;
     const filePackage = await Package.findOne({ packageId });
+    const packageModel = new Package();
 
     // Check if package is expired
     if (!filePackage || filePackage.package_expiry_date < moment()) {
@@ -105,6 +106,7 @@ exports.dowloadPackage = async (req, res) => {
       res.attachment(filePath);
       const fileStream = s3.getObject(options).createReadStream();
       fileStream.pipe(res);
+      await packageModel.updatePackageStatus(packageId);
     }
     if (filePackage.files.length > 1) {
       // Download package with multiple files
@@ -126,7 +128,7 @@ exports.dowloadPackage = async (req, res) => {
           `${downloadPath}/${file.originalname}`
         );
         fileStream.pipe(writeStream);
-        writeStream.on('finish', () => {
+        writeStream.on('finish', async () => {
           complete += 1;
           if (complete === filePackage.files.length) {
             zip.addLocalFolder(fileDir);
@@ -135,6 +137,7 @@ exports.dowloadPackage = async (req, res) => {
             const zipStream = new PassThrough();
             zipStream.end(zipFile);
             zipStream.pipe(res);
+            await packageModel.updatePackageStatus(packageId);
             fs.rmSync(fileDir, { recursive: true, force: true });
           }
         });
