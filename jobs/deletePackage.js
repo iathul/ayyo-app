@@ -4,7 +4,7 @@ const Package = require('../models/package');
 const s3 = require('../config/S3Config');
 
 exports.deletePackageJob = async () => {
-  schedule.scheduleJob('*/10 * * * *', async () => {
+  schedule.scheduleJob('0 0 */7 * *', async () => {
     const packageModel = new Package();
     const packages = await packageModel.getExpiredPackages();
     if (packages.length > 0) {
