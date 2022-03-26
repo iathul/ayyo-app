@@ -1,4 +1,4 @@
-const sendMailQueue = require('../config/bull');
+const { sendMailQueue } = require('../config/bull');
 const transporter = require('../config/nodemailer');
 
 // Consumer: this gets called each time the producer receives a new email.

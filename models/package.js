@@ -71,6 +71,16 @@ packageSchema.methods = {
     packageData.package_download_count += 1;
     packageData.package_last_download_at = moment();
     await packageData.save();
+  },
+  async getExpiredPackages() {
+    const Package = mongoose.model('Package');
+    const packages = await Package.find({ package_expiry_date: { $lt: moment() } });
+    return packages;
+  },
+  async deletePackageById(packageId) {
+    const Package = mongoose.model('Package');
+    const packageData = await Package.findOne({ packageId });
+    await packageData.remove();
   }
 };
 
