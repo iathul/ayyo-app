@@ -1,6 +1,6 @@
 {
   "name": "ayyo-app",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "File transfer application",
   "main": "app.js",
   "scripts": {
