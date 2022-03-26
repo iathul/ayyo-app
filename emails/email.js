@@ -1,7 +1,7 @@
 const ejs = require('ejs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const sendMailQueue = require('../config/bull');
+const { sendMailQueue } = require('../config/bull');
 
 // Template base path
 const template = path.join(process.cwd(), '/views/emails');
