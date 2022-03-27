@@ -9,6 +9,7 @@ exports.verifyToken = () => [
   }),
   (err, req, res, next) => {
     if (err) {
+      console.log(err);
       return res
         .status(err.status)
         .json({
