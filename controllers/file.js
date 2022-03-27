@@ -10,55 +10,62 @@ const { s3Storage } = require('../config/multer');
 const s3 = require('../config/S3Config');
 
 exports.uploadFiles = (req, res) => {
-  const fileLoc = nanoid(6);
-  const storage = s3Storage(fileLoc);
-  const upload = multer({ storage }).array('fileData');
+  try {
+    const fileLoc = nanoid(6);
+    const storage = s3Storage(fileLoc);
+    const upload = multer({ storage }).array('fileData');
 
-  upload(req, res, async (err) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json({
-        error: 'Failed to upload files. Please try again.',
+    upload(req, res, async (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          error: 'Failed to upload files. Please try again.',
+        });
+      }
+
+      // Create file object
+      const files = req.files.map((file) => {
+        const filedata = {
+          destination: file.location,
+          encoding: file.encoding,
+          metadata: file.metadata,
+          fieldname: file.fieldname,
+          filename: file.filename,
+          mimetype: file.mimetype,
+          originalname: file.originalname,
+          path: file.path,
+          size: file.size,
+        };
+        return filedata;
       });
-    }
 
-    // Create file object
-    const files = req.files.map((file) => {
-      const filedata = {
-        destination: file.location,
-        encoding: file.encoding,
-        metadata: file.metadata,
-        fieldname: file.fieldname,
-        filename: file.filename,
-        mimetype: file.mimetype,
-        originalname: file.originalname,
-        path: file.path,
-        size: file.size,
-      };
-      return filedata;
-    });
-
-    // Create and save packge
-    const packageId = `package_${nanoid()}`;
-    const packageData = new Package({
-      user: req.auth._id,
-      packageId,
-      files,
-      package_expiry_date: moment().add(process.env.PACKAGE_EXPIRY_DAYS, 'd'),
-      package_destination: `${fileLoc}`
-    });
-
-    const newPackage = await packageData.save();
-    if (!newPackage) {
-      return res.status(500).json({
-        error: 'Failed to create package. Please try again.',
+      // Create and save packge
+      const packageId = `package_${nanoid()}`;
+      const packageData = new Package({
+        user: req.auth._id,
+        packageId,
+        files,
+        package_expiry_date: moment().add(process.env.PACKAGE_EXPIRY_DAYS, 'd'),
+        package_destination: `${fileLoc}`
       });
-    }
-    return res.status(200).json({
-      message: 'Package created successfully.',
-      packageId,
+
+      const newPackage = await packageData.save();
+      if (!newPackage) {
+        return res.status(500).json({
+          error: 'Failed to create package. Please try again.',
+        });
+      }
+      return res.status(200).json({
+        message: 'Package created successfully.',
+        packageId,
+      });
     });
-  });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: 'Unable to create package. Please try again.',
+    });
+  }
 };
 
 // Create sharable link
