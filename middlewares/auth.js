@@ -1,24 +1,22 @@
 const expressjwt = require('express-jwt');
 const User = require('../models/user');
 
-exports.verifyToken = () => [
-  expressjwt({
+exports.verifyToken = () => expressjwt(
+  {
     secret: process.env.TOKEN_SECRET,
-    userProperty: 'auth',
     algorithms: ['HS256'],
-  }),
+    credentialsRequired: false,
+    userProperty: 'auth',
+  },
   (err, req, res, next) => {
     if (err) {
-      console.log(err);
-      return res
-        .status(err.status)
-        .json({
-          error: 'Token expired. You are notauthenticated. Please login.',
-        });
+      return res.status(err.status).json({
+        error: 'Token expired. You are notauthenticated. Please login.',
+      });
     }
-    next();
-  },
-];
+    return next();
+  }
+);
 
 exports.isAuthenticated = async (req, res, next) => {
   if (req.auth) {
