@@ -3,7 +3,7 @@ const file = require('../controllers/file');
 const { verifyToken, isAuthenticated } = require('../middlewares/auth');
 
 // Add files
-router.post('/', verifyToken, isAuthenticated, file.uploadFiles);
+router.post('/', verifyToken(), isAuthenticated, file.uploadFiles);
 
 // Create sharaable link
 router.get(
