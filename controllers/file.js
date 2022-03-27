@@ -63,7 +63,7 @@ exports.uploadFiles = (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      error: 'Unable to create package. Please try again.',
+      error: 'Failed to create package. Please try again.',
     });
   }
 };
