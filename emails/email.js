@@ -22,7 +22,7 @@ exports.sendEmailVerificationLink = async (user) => {
       process.env.NODE_ENV === 'development'
         ? process.env.BASE_URL
         : process.env.BASE_URL_PROD
-    }/api/auth/verify/email/${token}`;
+    }/auth/verify/email/${token}`;
 
     const mailData = await ejs.renderFile(`${template}/verifyAccount.ejs`, {
       name: user.fullName(),
