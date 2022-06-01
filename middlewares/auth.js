@@ -11,7 +11,7 @@ exports.verifyToken = () => expressjwt(
   (err, req, res, next) => {
     if (err) {
       return res.status(err.status).json({
-        error: 'Token expired. You are notauthenticated. Please login.',
+        error: 'Token expired. You are not authenticated. Please login.',
       });
     }
     return next();
