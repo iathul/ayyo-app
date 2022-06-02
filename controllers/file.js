@@ -71,20 +71,26 @@ exports.uploadFiles = (req, res) => {
 // Create sharable link
 // Todo share via email
 exports.shareFiles = async (req, res) => {
-  const { packageId } = req.params;
-  const filePackage = await Package.findOne({ packageId });
-  if (!filePackage) {
-    return res.status(404).json({
-      error: 'Package not found.',
+  try {
+    const { packageId } = req.params;
+    const filePackage = await Package.findOne({ packageId });
+    if (!filePackage) {
+      return res.status(404).json({
+        error: 'Package not found.',
+      });
+    }
+    const fileUrl = `${
+      process.env.NODE_ENV === 'development'
+        ? process.env.BASE_URL
+        : process.env.BASE_URL_PROD
+    }/files/download/${packageId}`;
+    return res.status(200).json({
+      message: 'Sharable Link.',
+      url: fileUrl,
     });
+  } catch (error) {
+    console.log(error);
   }
-  const fileUrl = `${process.env.NODE_ENV === 'development' ? process.env.BASE_URL
-    : process.env.BASE_URL_PROD
-  }/files/download/${packageId}`;
-  return res.status(200).json({
-    message: 'Sharable Link.',
-    url: fileUrl,
-  });
 };
 
 // Download package
