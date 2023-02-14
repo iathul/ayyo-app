@@ -4,8 +4,8 @@ const User = require('../models/user');
 const { sendEmailVerificationLink, sendResetPswdLink } = require('../emails/email');
 
 // Request validation
-const requestValidation = (req) => {
-  const errors = validationResult(req);
+const requestValidation = async (req) => {
+  const errors = await validationResult(req);
   let message;
   if (!errors.isEmpty()) {
     message = `${errors.array()[0].param} ${errors.array()[0].msg}`;
@@ -17,7 +17,7 @@ const requestValidation = (req) => {
 exports.register = async (req, res) => {
   try {
     // Request validation
-    const result = requestValidation(req);
+    const result = await requestValidation(req);
     if (result) {
       return res.status(422).json({
         error: result
@@ -158,19 +158,19 @@ exports.sendResetPswdLink = async (req, res) => {
 // Update password
 exports.updatePassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const result = await requestValidation(req);
+    if (result) {
+      return res.status(422).json({
+        error: result
+      });
+    }
+
+    const { token } = req.query;
     if (token) {
       jwt.verify(token, process.env.TOKEN_SECRET, async (err, decodedToken) => {
         if (err) {
           return res.status(400).json({
             error: 'Reset password link expired.',
-          });
-        }
-
-        const result = requestValidation(req);
-        if (result) {
-          return res.status(422).json({
-            error: result,
           });
         }
 
