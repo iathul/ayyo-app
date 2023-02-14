@@ -15,6 +15,7 @@ router.get('/verify/email/:token', auth.verifyEmail);
 router.post('/password', validator.validateEmail(), auth.sendResetPswdLink);
 
 // Update password
-router.post('/password/update/:token', validator.validatePassword(), auth.updatePassword);
+
+router.put('/password', validator.validatePassword(), auth.updatePassword);
 
 module.exports = router;
