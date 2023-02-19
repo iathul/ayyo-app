@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const { sendEmailVerificationLink, sendResetPswdLink } = require('../emails/email');
+const { createVerificationToken } = require('../utils/token');
 
 // Request validation
 const requestValidation = async (req) => {
@@ -24,14 +25,24 @@ exports.register = async (req, res) => {
       });
     }
 
-    const userExists = await User.findOne({ email: req.body.email });
+    const {
+      firstName, lastName, email, password
+    } = req.body;
+
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
         error: 'User already exists'
       });
     }
 
-    const user = new User(req.body);
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password,
+      token: createVerificationToken()
+    });
     const newUser = await user.save();
 
     if (!newUser) {
@@ -44,7 +55,8 @@ exports.register = async (req, res) => {
     sendEmailVerificationLink(newUser);
 
     return res.status(200).json({
-      message: 'Signup success'
+      message: 'Signup success',
+      user: newUser.userDetails()
     });
   } catch (error) {
     console.log(error);
