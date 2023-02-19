@@ -1,46 +1,70 @@
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 
 exports.signupValidation = () => [
   body('firstName')
-    .isLength({ min: 3 })
     .trim()
-    .withMessage('must contain at least 3 characters'),
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
+    .isLength({ min: 3 })
+    .withMessage('must contain at least 3 characters.'),
   body('email')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
     .isEmail()
-    .withMessage('must be a valid email')
+    .withMessage('must be valid email.')
     .normalizeEmail({ gmail_remove_dots: false })
-    .toLowerCase()
-    .trim(),
-  body('password').isLength({ min: 8 })
+    .toLowerCase(),
+  body('password')
+    .isLength({ min: 8 })
     .withMessage('must contain at least 8 characters')
-    .trim(),
+    .trim()
 ];
 
 exports.signinValidation = () => [
   body('email')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
     .isEmail()
-    .withMessage('must be a valid email')
+    .withMessage('must be valid email.')
     .normalizeEmail({ gmail_remove_dots: false })
-    .toLowerCase()
-    .trim(),
-  body('password').isLength({ min: 8 })
+    .toLowerCase(),
+  body('password')
+    .isLength({ min: 8 })
     .withMessage('must contain at least 8 characters')
-    .trim(),
+    .trim()
 ];
 
 // Validate email to update password
 exports.validateEmail = () => [
   body('email')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
     .isEmail()
-    .withMessage('must be a valid email')
+    .withMessage('must be valid email.')
     .normalizeEmail({ gmail_remove_dots: false })
     .toLowerCase()
-    .trim(),
 ];
 
 // Validate new password
 exports.validatePassword = () => [
-  body('new_password').isLength({ min: 8 })
-    .withMessage('must contain at least 8 characters')
-    .trim(),
+  query('token')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.'),
+  body('new_password')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
+    .isLength({ min: 8 })
+    .withMessage('must contain at least 8 characters.')
+    .trim()
 ];

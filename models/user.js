@@ -38,10 +38,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  token: {
+    type: String,
   },
+}, {
+  timestamps: true
 });
 
 userSchema.virtual('password')
@@ -74,7 +75,6 @@ userSchema.methods = {
       id: this._id,
       fullName: this.fullName(),
       email: this.email,
-      emailVerified: this.emailVerified,
       isVerified: this.isVerified,
     };
     return user;

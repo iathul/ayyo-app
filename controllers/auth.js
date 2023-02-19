@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const { sendEmailVerificationLink, sendResetPswdLink } = require('../emails/email');
+const { createVerificationToken } = require('../utils/token');
 
 // Request validation
-const requestValidation = (req) => {
-  const errors = validationResult(req);
+const requestValidation = async (req) => {
+  const errors = await validationResult(req);
   let message;
   if (!errors.isEmpty()) {
     message = `${errors.array()[0].param} ${errors.array()[0].msg}`;
@@ -17,26 +18,36 @@ const requestValidation = (req) => {
 exports.register = async (req, res) => {
   try {
     // Request validation
-    const result = requestValidation(req);
+    const result = await requestValidation(req);
     if (result) {
       return res.status(422).json({
         error: result
       });
     }
 
-    const userExists = await User.findOne({ email: req.body.email });
+    const {
+      firstName, lastName, email, password
+    } = req.body;
+
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
-        error: 'User already exists'
+        error: 'User already exists.'
       });
     }
 
-    const user = new User(req.body);
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password,
+      token: createVerificationToken()
+    });
     const newUser = await user.save();
 
     if (!newUser) {
       return res.status(400).json({
-        error: 'Signup failed. Please try again'
+        error: 'Signup failed. Please try again.'
       });
     }
 
@@ -44,44 +55,46 @@ exports.register = async (req, res) => {
     sendEmailVerificationLink(newUser);
 
     return res.status(200).json({
-      message: 'Signup success'
+      message: 'Signup success',
+      user: newUser.userDetails()
     });
   } catch (error) {
     console.log(error);
+    return res.status(400).json({
+      error: 'Signup failed. Please try again.'
+    });
   }
 };
 
 // Verify email
-exports.verifyEmail = (req, res) => {
+exports.verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { token } = req.query;
     if (token) {
-      jwt.verify(token, process.env.TOKEN_SECRET, async (err, decodedToken) => {
-        if (err) {
-          return res.status(400).json({
-            error: 'Activation link expired.',
-          });
-        }
+      const verified = await User.findOneAndUpdate(
+        { token },
+        { $set: { isVerified: true, token: '' } },
+        { new: true }
+      );
 
-        const verified = await User.findOneAndUpdate(
-          { email: decodedToken.email },
-          { $set: { isVerified: true } },
-          { new: true }
-        );
-
-        if (!verified) {
-          return res.status(400).json({
-            error: 'Something Went Wrong, Please Try Again',
-          });
-        }
-
-        return res.status(200).json({
-          message: 'Email verified successfully',
+      if (!verified) {
+        return res.status(400).json({
+          error: 'Email already verified.',
         });
+      }
+
+      return res.status(200).json({
+        message: 'Email verified successfully',
       });
     }
+    return res.status(400).json({
+      error: 'Invalid token.'
+    });
   } catch (error) {
     console.log(error);
+    return res.status(400).json({
+      error: 'Failed to verify email. Please try again.'
+    });
   }
 };
 
@@ -158,19 +171,19 @@ exports.sendResetPswdLink = async (req, res) => {
 // Update password
 exports.updatePassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const result = await requestValidation(req);
+    if (result) {
+      return res.status(422).json({
+        error: result
+      });
+    }
+
+    const { token } = req.query;
     if (token) {
       jwt.verify(token, process.env.TOKEN_SECRET, async (err, decodedToken) => {
         if (err) {
           return res.status(400).json({
             error: 'Reset password link expired.',
-          });
-        }
-
-        const result = requestValidation(req);
-        if (result) {
-          return res.status(422).json({
-            error: result,
           });
         }
 
