@@ -9,7 +9,7 @@ router.post('/register', validator.signupValidation(), auth.register);
 router.post('/login', validator.signinValidation(), auth.login);
 
 // Verify email
-router.get('/verify/email/:token', auth.verifyEmail);
+router.get('/verify/email', auth.verifyEmail);
 
 // Get reset password email
 router.post('/password', validator.validateEmail(), auth.sendResetPswdLink);
