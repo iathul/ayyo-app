@@ -1,7 +1,7 @@
 # ayyo-app
 
 [![Node.js CI](https://github.com/iathul/ayyo-app/actions/workflows/node.js.yml/badge.svg)](https://github.com/iathul/ayyo-app/actions/workflows/node.js.yml)
-![Heroku](https://pyheroku-badge.herokuapp.com/?app=ayyo-app&style=flat)
+
 
 ayyo server side development
 
@@ -48,6 +48,6 @@ npm run dev
 ayyo will be running in developing mode at
 
 ```text
-localhost: PORT 
+localhost: PORT
 
 ```
