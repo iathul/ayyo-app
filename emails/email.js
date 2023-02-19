@@ -14,24 +14,18 @@ const options = {
 // Send email verification link
 exports.sendEmailVerificationLink = async (user) => {
   try {
-    const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET, {
-      expiresIn: '10m',
-    });
+    const { token } = user;
 
     const url = `${
       process.env.NODE_ENV === 'development'
         ? process.env.BASE_URL
         : process.env.BASE_URL_PROD
-    }/auth/verify/email/${token}`;
+    }/auth/verify/email/?token=${token}`;
 
     const mailData = await ejs.renderFile(`${template}/verifyAccount.ejs`, {
       name: user.fullName(),
       url,
     });
-
-    if (!mailData) {
-      console.log('Error rendering email template');
-    }
 
     const jobData = {
       mailOptions: {
