@@ -39,7 +39,7 @@ exports.signinValidation = () => [
     .trim()
 ];
 
-// Validate email to update password
+// Validate email to update password  & resend verification email
 exports.validateEmail = () => [
   body('email')
     .trim()

@@ -5,25 +5,20 @@ const { sendEmailVerificationLink, sendResetPswdLink } = require('../emails/emai
 const { createVerificationToken } = require('../utils/token');
 
 // Request validation
-const requestValidation = async (req) => {
+const requestValidation = async (req, res) => {
   const errors = await validationResult(req);
-  let message;
   if (!errors.isEmpty()) {
-    message = `${errors.array()[0].param} ${errors.array()[0].msg}`;
+    return res.status(422).json({
+      error: `${errors.array()[0].param} ${errors.array()[0].msg}`
+    });
   }
-  return message;
 };
 
 // User signup
 exports.register = async (req, res) => {
   try {
     // Request validation
-    const result = await requestValidation(req);
-    if (result) {
-      return res.status(422).json({
-        error: result
-      });
-    }
+    requestValidation(req, res);
 
     const {
       firstName, lastName, email, password
@@ -88,7 +83,7 @@ exports.verifyEmail = async (req, res) => {
       });
     }
     return res.status(400).json({
-      error: 'Invalid token.'
+      error: 'Invalid token or email already verified.'
     });
   } catch (error) {
     console.log(error);
@@ -203,5 +198,36 @@ exports.updatePassword = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+// Resend email verification link
+exports.sendEmailVerificationLink = async (req, res) => {
+  try {
+    requestValidation(req, res);
+
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(400).json({
+        error: 'User not found.'
+      });
+    }
+
+    // Update token
+    const token = createVerificationToken();
+    user.token = token;
+    await user.save();
+
+    // Send email verification link
+    sendEmailVerificationLink(user);
+
+    return res.status(200).json({
+      message: 'An email with verification link has been sent.'
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      error: 'Failed to sent verification email. Please try again.'
+    });
   }
 };
