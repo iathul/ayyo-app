@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
-        error: 'User already exists'
+        error: 'User already exists.'
       });
     }
 
@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
 
     if (!newUser) {
       return res.status(400).json({
-        error: 'Signup failed. Please try again'
+        error: 'Signup failed. Please try again.'
       });
     }
 
@@ -60,6 +60,9 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(400).json({
+      error: 'Signup failed. Please try again.'
+    });
   }
 };
 
