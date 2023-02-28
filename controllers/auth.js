@@ -31,12 +31,13 @@ exports.register = async (req, res) => {
       });
     }
 
+    const token = createVerificationToken();
     const user = new User({
       firstName,
       lastName,
       email,
       password,
-      token: createVerificationToken()
+      token
     });
     const newUser = await user.save();
 
@@ -68,7 +69,7 @@ exports.verifyEmail = async (req, res) => {
     if (token) {
       const verified = await User.findOneAndUpdate(
         { token },
-        { $set: { isVerified: true, token: '' } },
+        { $set: { isVerified: true, token: null } },
         { new: true }
       );
 
@@ -133,25 +134,25 @@ exports.login = async (req, res) => {
 // Send reset password link
 exports.sendResetPswdLink = async (req, res) => {
   try {
-    const result = requestValidation(req);
-    if (result) {
-      return res.status(422).json({
-        error: result,
-      });
-    }
+    requestValidation(req);
 
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(400).json({
-        error: 'Invalid email',
+      return res.status(404).json({
+        error: 'Invalid email'
       });
     }
+
+    // Update token
+    const token = createVerificationToken();
+    user.token = token;
+    await user.save();
 
     // Send reset password link
     sendResetPswdLink(user);
 
     return res.status(200).json({
-      message: 'An email with password reset link has been sent.',
+      message: 'An email with password reset link has been sent.'
     });
   } catch (error) {
     console.log(error);
@@ -161,34 +162,26 @@ exports.sendResetPswdLink = async (req, res) => {
 // Update password
 exports.updatePassword = async (req, res) => {
   try {
-    const result = await requestValidation(req);
-    if (result) {
-      return res.status(422).json({
-        error: result
-      });
-    }
+    requestValidation(req);
 
     const { token } = req.query;
     if (token) {
-      jwt.verify(token, process.env.TOKEN_SECRET, async (err, decodedToken) => {
-        if (err) {
-          return res.status(400).json({
-            error: 'Reset password link expired.',
-          });
-        }
-
-        const user = await User.findOne({ email: decodedToken.email });
-        user.password = req.body.new_password;
-
-        const updated = await user.save();
-        if (!updated) {
-          return res.status(400).json({
-            error: 'Cannot update password, please try again',
-          });
-        }
-        return res.status(200).json({
-          message: 'Password updated successfully',
+      const user = await User.findOne({ token });
+      if (!user) {
+        return res.status(400).json({
+          error: 'Password link expired or Invalid.'
         });
+      }
+      user.password = req.body.new_password;
+      user.token = null;
+      const updated = await user.save();
+      if (!updated) {
+        return res.status(400).json({
+          error: 'Cannot update password.Please try again.',
+        });
+      }
+      return res.status(200).json({
+        message: 'Password updated successfully.',
       });
     }
   } catch (error) {
