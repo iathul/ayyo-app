@@ -97,12 +97,7 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     // Request validation
-    const result = requestValidation(req);
-    if (result) {
-      return res.status(422).json({
-        error: result,
-      });
-    }
+    requestValidation(req);
 
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -128,8 +123,8 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
       expiresIn: process.env.TOKEN_EXPIRY,
     });
-    const authUser = user.userDetails();
-    return res.json({ token, authUser });
+
+    return res.json({ token, user: user.userDetails() });
   } catch (error) {
     console.log(error);
   }
