@@ -22,7 +22,7 @@
   "homepage": "https://github.com/iathul/ayyo-app#readme",
   "dependencies": {
     "adm-zip": "^0.5.9",
-    "aws-sdk": "^2.1066.0",
+    "aws-sdk": "^2.1354.0",
     "bull": "^4.4.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
