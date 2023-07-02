@@ -15,18 +15,15 @@ exports.storagePath = (name) => {
 exports.s3Storage = (name) => {
   const storageS3 = multerS3({
     s3,
-    bucket: 'ayyo-file-storage',
+    bucket: process.env.S3_BUCKET_NAME,
     metadata(req, file, cb) {
       cb(null, {
-        fieldName: `${name}`,
+        fieldName: `${name}`
       });
     },
     key(req, file, cb) {
-      cb(
-        null,
-        `${name}/${file.originalname}`
-      );
-    },
+      cb(null, `${name}/${file.originalname}`);
+    }
   });
   return storageS3;
 };

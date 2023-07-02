@@ -17,7 +17,7 @@ exports.uploadFiles = (req, res) => {
 
     upload(req, res, async (err) => {
       if (err) {
-        console.log(err);
+        console.log(err.message);
         return res.status(500).json({
           error: 'Failed to upload files. Please try again.',
         });
@@ -113,8 +113,8 @@ exports.dowloadPackage = async (req, res) => {
 
       // Download single file from S3
       const options = {
-        Bucket: 'ayyo-file-storage',
-        Key: filePath,
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: filePath
       };
       res.attachment(filePath);
       const fileStream = s3.getObject(options).createReadStream();
@@ -133,8 +133,8 @@ exports.dowloadPackage = async (req, res) => {
       filePackage.files.forEach((file) => {
         const filePath = `${filePackage.package_destination}/${file.originalname}`;
         const options = {
-          Bucket: 'ayyo-file-storage',
-          Key: filePath,
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: filePath
         };
         const fileStream = s3.getObject(options).createReadStream();
         const writeStream = fs.createWriteStream(
