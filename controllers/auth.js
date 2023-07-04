@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
-const { sendEmailVerificationLink, sendResetPswdLink } = require('../emails/email');
+const {
+  sendEmailVerificationLink,
+  sendResetPswdLink
+} = require('../emails/email');
 const { createVerificationToken } = require('../utils/token');
 
 // Request validation
@@ -55,8 +58,8 @@ exports.register = async (req, res) => {
       user: newUser.userDetails()
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
+    console.log(`Signup failed. ${error.message}`);
+    return res.status(500).json({
       error: 'Signup failed. Please try again.'
     });
   }
@@ -87,14 +90,14 @@ exports.verifyEmail = async (req, res) => {
       error: 'Invalid token or email already verified.'
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
+    console.log(`Failed to verify email - ${error.message}`);
+    return res.status(500).json({
       error: 'Failed to verify email. Please try again.'
     });
   }
 };
 
-// User signin
+// User login
 exports.login = async (req, res) => {
   try {
     // Request validation
@@ -104,7 +107,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: 'User not found. Please signup',
       });
     }
@@ -115,9 +118,9 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (!user.autheticate(password)) {
+    if (!user.authenticate(password)) {
       return res.status(401).json({
-        error: 'Invalid password',
+        error: 'Invalid password'
       });
     }
 
@@ -127,7 +130,10 @@ exports.login = async (req, res) => {
 
     return res.json({ token, user: user.userDetails() });
   } catch (error) {
-    console.log(error);
+    console.log(`Login failed - ${error.message}`);
+    return res.status(500).json({
+      error: 'Login failed. Please try again.'
+    });
   }
 };
 
@@ -155,7 +161,10 @@ exports.sendResetPswdLink = async (req, res) => {
       message: 'An email with password reset link has been sent.'
     });
   } catch (error) {
-    console.log(error);
+    console.log(`Failed to send password reset link - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed to send password reset link. Please try again.'
+    });
   }
 };
 
@@ -177,7 +186,7 @@ exports.updatePassword = async (req, res) => {
       const updated = await user.save();
       if (!updated) {
         return res.status(400).json({
-          error: 'Cannot update password.Please try again.',
+          error: 'Failed to password.Please try again.',
         });
       }
       return res.status(200).json({
@@ -185,7 +194,10 @@ exports.updatePassword = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(`Failed to update password - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed update password. Please try again.'
+    });
   }
 };
 
@@ -196,7 +208,7 @@ exports.sendEmailVerificationLink = async (req, res) => {
 
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: 'User not found.'
       });
     }
@@ -213,9 +225,9 @@ exports.sendEmailVerificationLink = async (req, res) => {
       message: 'An email with verification link has been sent.'
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
-      error: 'Failed to sent verification email. Please try again.'
+    console.log(`Failed to resent verification email - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed to resent verification email. Please try again.'
     });
   }
 };
