@@ -118,9 +118,9 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (!user.autheticate(password)) {
+    if (!user.authenticate(password)) {
       return res.status(401).json({
-        error: 'Invalid password',
+        error: 'Invalid password'
       });
     }
 

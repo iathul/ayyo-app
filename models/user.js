@@ -56,15 +56,15 @@ userSchema.virtual('password')
   });
 
 userSchema.methods = {
-  autheticate(plainpassword) {
-    return this.securePassword(plainpassword) === this.hashed_password;
+  authenticate(plainPassword) {
+    return this.securePassword(plainPassword) === this.hashed_password;
   },
-  securePassword(plainpassword) {
-    if (!plainpassword) return '';
+  securePassword(plainPassword) {
+    if (!plainPassword) return '';
     try {
       return crypto
         .createHmac('sha256', this.salt)
-        .update(plainpassword)
+        .update(plainPassword)
         .digest('hex');
     } catch (err) {
       return '';
@@ -75,13 +75,13 @@ userSchema.methods = {
       id: this._id,
       fullName: this.fullName(),
       email: this.email,
-      isVerified: this.isVerified,
+      isVerified: this.isVerified
     };
     return user;
   },
   fullName() {
     return `${this.firstName} ${this.lastName}`;
-  },
+  }
 };
 
 module.exports = mongoose.model('User', userSchema);
