@@ -15,11 +15,11 @@ exports.uploadFiles = (req, res) => {
     const storage = s3Storage(fileLoc)
     const upload = multer({ storage }).array('fileData')
 
-    upload(req, res, async (err) => {
-      if (err) {
-        console.log(err.message)
+    upload(req, res, async (error) => {
+      if (error) {
+        console.log(error.message)
         return res.status(500).json({
-          error: 'Failed to upload files. Please try again.',
+          error: 'Failed to upload files. Please try again.'
         })
       }
 
@@ -34,7 +34,7 @@ exports.uploadFiles = (req, res) => {
           mimetype: file.mimetype,
           originalname: file.originalname,
           path: file.path,
-          size: file.size,
+          size: file.size
         }
         return filedata
       })
@@ -52,18 +52,18 @@ exports.uploadFiles = (req, res) => {
       const newPackage = await packageData.save()
       if (!newPackage) {
         return res.status(500).json({
-          error: 'Failed to create package. Please try again.',
+          error: 'Failed to create package. Please try again.'
         })
       }
       return res.status(200).json({
         message: 'Package created successfully.',
-        packageId,
+        packageId
       })
     })
   } catch (error) {
     console.log(error)
     return res.status(500).json({
-      error: 'Failed to create package. Please try again.',
+      error: 'Failed to create package. Please try again.'
     })
   }
 }
@@ -76,7 +76,7 @@ exports.shareFiles = async (req, res) => {
     const filePackage = await Package.findOne({ packageId })
     if (!filePackage) {
       return res.status(404).json({
-        error: 'Package not found.',
+        error: 'Package not found.'
       })
     }
     const fileUrl = `${
@@ -86,7 +86,7 @@ exports.shareFiles = async (req, res) => {
     }/files/download/${packageId}`
     return res.status(200).json({
       message: 'Sharable Link.',
-      url: fileUrl,
+      url: fileUrl
     })
   } catch (error) {
     console.log(error)
@@ -103,7 +103,7 @@ exports.downloadPackage = async (req, res) => {
     // Check if package is expired
     if (!filePackage || filePackage.package_expiry_date < moment()) {
       return res.status(400).json({
-        error: 'This package has been expired.',
+        error: 'This package has been expired.'
       })
     }
 
@@ -130,7 +130,7 @@ exports.downloadPackage = async (req, res) => {
       let complete = 0
       const zip = new AdmZip()
       const downloadPath = path.join(process.cwd(), fileDir)
-      filePackage.files.forEach((file) => {
+      filePackage.files.forEach(file => {
         const filePath = `${filePackage.package_destination}/${file.originalname}`
         const options = {
           Bucket: process.env.S3_BUCKET_NAME,
@@ -159,7 +159,7 @@ exports.downloadPackage = async (req, res) => {
   } catch (error) {
     console.log(error)
     return res.status(500).json({
-      error: 'Unable to download the package. Please try again.',
+      error: 'Unable to download the package. Please try again.'
     })
   }
 }
