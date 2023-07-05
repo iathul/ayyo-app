@@ -10,7 +10,7 @@ router.get(
   '/sharable-link/:packageId',
   verifyToken(),
   isAuthenticated,
-  file.shareFiles,
+  file.shareFiles
 )
 
 // Download files
