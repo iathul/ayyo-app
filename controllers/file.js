@@ -94,7 +94,7 @@ exports.shareFiles = async (req, res) => {
 }
 
 // Download package
-exports.dowloadPackage = async (req, res) => {
+exports.downloadPackage = async (req, res) => {
   try {
     const { packageId } = req.params
     const filePackage = await Package.findOne({ packageId })

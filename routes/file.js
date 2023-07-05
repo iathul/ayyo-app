@@ -5,7 +5,7 @@ const { verifyToken, isAuthenticated } = require('../middlewares/auth')
 // Add files
 router.post('/', verifyToken(), isAuthenticated, file.uploadFiles)
 
-// Create sharaable link
+// Create sharable link
 router.get(
   '/sharable-link/:packageId',
   verifyToken(),
@@ -14,6 +14,6 @@ router.get(
 )
 
 // Download files
-router.get('/download/:packageId', file.dowloadPackage)
+router.get('/download/:packageId', file.downloadPackage)
 
 module.exports = router
