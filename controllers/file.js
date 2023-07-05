@@ -17,7 +17,7 @@ exports.uploadFiles = (req, res) => {
 
     upload(req, res, async (error) => {
       if (error) {
-        console.log(error.message)
+        console.log(`Failed to upload files - ${error.message}`)
         return res.status(500).json({
           error: 'Failed to upload files. Please try again.'
         })
@@ -61,7 +61,7 @@ exports.uploadFiles = (req, res) => {
       })
     })
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to create package - ${error.message}`)
     return res.status(500).json({
       error: 'Failed to create package. Please try again.'
     })
@@ -89,7 +89,10 @@ exports.shareFiles = async (req, res) => {
       url: fileUrl
     })
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to create sharable link - ${error.message}`)
+    return res.status(500).json({
+      error: 'Failed to create sharable link. Please try again.'
+    })
   }
 }
 
@@ -157,7 +160,7 @@ exports.downloadPackage = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to download package - ${error.message}`)
     return res.status(500).json({
       error: 'Unable to download the package. Please try again.'
     })
