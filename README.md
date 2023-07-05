@@ -27,7 +27,7 @@ npm install
 
 ```
 
-Setup environment varibles
+Setup environment variables
 
 - `cp .env.sample .env`, and modify as required
 
@@ -49,5 +49,12 @@ ayyo will be running in developing mode at
 
 ```text
 localhost: PORT
+
+```
+
+Fix any lint error
+
+```text
+npm run lint
 
 ```
