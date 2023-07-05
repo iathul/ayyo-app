@@ -15,31 +15,31 @@ exports.uploadFiles = (req, res) => {
     const storage = s3Storage(fileLoc)
     const upload = multer({ storage }).array('fileData')
 
-    upload(req, res, async (err) => {
-      if (err) {
-        console.log(err.message)
+    upload(req, res, async (error) => {
+      if (error) {
+        console.log(`Failed to upload files - ${error.message}`)
         return res.status(500).json({
-          error: 'Failed to upload files. Please try again.',
+          error: 'Failed to upload files. Please try again.'
         })
       }
 
       // Create file object
       const files = req.files.map((file) => {
-        const filedata = {
+        const fileData = {
           destination: file.location,
           encoding: file.encoding,
           metadata: file.metadata,
-          fieldname: file.fieldname,
+          fieldName: file.fieldName,
           filename: file.filename,
           mimetype: file.mimetype,
           originalname: file.originalname,
           path: file.path,
-          size: file.size,
+          size: file.size
         }
-        return filedata
+        return fileData
       })
 
-      // Create and save packge
+      // Create and save package
       const packageId = `package_${nanoid()}`
       const packageData = new Package({
         user: req.auth._id,
@@ -52,18 +52,18 @@ exports.uploadFiles = (req, res) => {
       const newPackage = await packageData.save()
       if (!newPackage) {
         return res.status(500).json({
-          error: 'Failed to create package. Please try again.',
+          error: 'Failed to create package. Please try again.'
         })
       }
       return res.status(200).json({
         message: 'Package created successfully.',
-        packageId,
+        packageId
       })
     })
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to create package - ${error.message}`)
     return res.status(500).json({
-      error: 'Failed to create package. Please try again.',
+      error: 'Failed to create package. Please try again.'
     })
   }
 }
@@ -76,7 +76,7 @@ exports.shareFiles = async (req, res) => {
     const filePackage = await Package.findOne({ packageId })
     if (!filePackage) {
       return res.status(404).json({
-        error: 'Package not found.',
+        error: 'Package not found.'
       })
     }
     const fileUrl = `${
@@ -86,15 +86,18 @@ exports.shareFiles = async (req, res) => {
     }/files/download/${packageId}`
     return res.status(200).json({
       message: 'Sharable Link.',
-      url: fileUrl,
+      url: fileUrl
     })
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to create sharable link - ${error.message}`)
+    return res.status(500).json({
+      error: 'Failed to create sharable link. Please try again.'
+    })
   }
 }
 
 // Download package
-exports.dowloadPackage = async (req, res) => {
+exports.downloadPackage = async (req, res) => {
   try {
     const { packageId } = req.params
     const filePackage = await Package.findOne({ packageId })
@@ -103,7 +106,7 @@ exports.dowloadPackage = async (req, res) => {
     // Check if package is expired
     if (!filePackage || filePackage.package_expiry_date < moment()) {
       return res.status(400).json({
-        error: 'This package has been expired.',
+        error: 'This package has been expired.'
       })
     }
 
@@ -157,9 +160,9 @@ exports.dowloadPackage = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log(error)
+    console.log(`Failed to download package - ${error.message}`)
     return res.status(500).json({
-      error: 'Unable to download the package. Please try again.',
+      error: 'Unable to download the package. Please try again.'
     })
   }
 }

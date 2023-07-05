@@ -98,5 +98,3 @@ exports.changeAvatar = async (req, res) => {
     })
   }
 }
-
-// Todo delete avatar

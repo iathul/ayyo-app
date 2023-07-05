@@ -10,7 +10,7 @@ const file = {
   encoding: {
     type: String,
   },
-  fieldname: {
+  fieldName: {
     type: String,
   },
   filename: {
