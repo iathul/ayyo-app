@@ -8,7 +8,10 @@ exports.getUser = (req, res) => {
     const user = req.authUser;
     return res.json(user);
   } catch (error) {
-    console.log(error);
+    console.log(`Failed to fetch user details - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed to fetch user details. Please try again.'
+    });
   }
 };
 
@@ -25,14 +28,17 @@ exports.updateUser = async (req, res) => {
 
     if (!updated) {
       return res.status(500).json({
-        error: 'Something went wrong. Please try again',
+        error: 'Failed to update user details. Please try again.',
       });
     }
     return res.status(200).json({
       message: 'User updated successfully',
     });
   } catch (error) {
-    console.log(error);
+    console.log(`Failed to update user details - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed to update user details. Please try again.'
+    });
   }
 };
 
@@ -44,14 +50,17 @@ exports.deleteUser = async (req, res) => {
 
     if (!deleted) {
       return res.status(500).json({
-        error: 'Something went wrong. Please try again',
+        error: 'Failed to remove user. Please try again.',
       });
     }
     return res.status(200).json({
-      message: 'User deleted successfully',
+      message: 'User remove successfully.',
     });
   } catch (error) {
-    console.log(error);
+    console.log(`Failed to remove user - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed to remove user. Please try again.'
+    });
   }
 };
 
@@ -66,7 +75,7 @@ exports.changeAvatar = async (req, res) => {
     upload(req, res, (err) => {
       if (err) {
         return res.status(400).json({
-          error: 'Cannot add profile picture. Please try again.',
+          error: 'Failed update avatar. Please try again.'
         });
       }
 
@@ -75,15 +84,18 @@ exports.changeAvatar = async (req, res) => {
 
       if (!updated) {
         return res.status(400).json({
-          error: 'Cannot change avatar. Please try again.',
+          error: 'Failed update avatar. Please try again.',
         });
       }
       return res.status(200).json({
-        message: 'Avatar added Sucessfully.',
+        message: 'Avatar updated successfully.',
       });
     });
   } catch (error) {
-    console.log(error);
+    console.log(`Failed update avatar - ${error.message}`);
+    return res.status(500).json({
+      error: 'Failed update avatar. Please try again.'
+    });
   }
 };
 
