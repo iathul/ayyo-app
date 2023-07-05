@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const moment = require('moment');
+const mongoose = require('mongoose')
+const moment = require('moment')
 
-const { ObjectId } = mongoose.Schema;
+const { ObjectId } = mongoose.Schema
 
 const file = {
   destination: {
@@ -28,7 +28,7 @@ const file = {
   size: {
     type: Number,
   },
-};
+}
 
 const packageSchema = new mongoose.Schema(
   {
@@ -61,27 +61,27 @@ const packageSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
-);
+)
 
 packageSchema.methods = {
   async updatePackageStatus(packageId) {
-    const Package = mongoose.model('Package');
-    const packageData = await Package.findOne({ packageId });
-    packageData.status = 'downloaded';
-    packageData.package_download_count += 1;
-    packageData.package_last_download_at = moment();
-    await packageData.save();
+    const Package = mongoose.model('Package')
+    const packageData = await Package.findOne({ packageId })
+    packageData.status = 'downloaded'
+    packageData.package_download_count += 1
+    packageData.package_last_download_at = moment()
+    await packageData.save()
   },
   async getExpiredPackages() {
-    const Package = mongoose.model('Package');
-    const packages = await Package.find({ package_expiry_date: { $lt: moment() } });
-    return packages;
+    const Package = mongoose.model('Package')
+    const packages = await Package.find({ package_expiry_date: { $lt: moment() } })
+    return packages
   },
   async deletePackageById(packageId) {
-    const Package = mongoose.model('Package');
-    const packageData = await Package.findOne({ packageId });
-    await packageData.remove();
+    const Package = mongoose.model('Package')
+    const packageData = await Package.findOne({ packageId })
+    await packageData.remove()
   }
-};
+}
 
-module.exports = mongoose.model('Package', packageSchema);
+module.exports = mongoose.model('Package', packageSchema)

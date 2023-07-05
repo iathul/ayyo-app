@@ -1,4 +1,4 @@
-const { body, query } = require('express-validator');
+const { body, query } = require('express-validator')
 
 exports.signupValidation = () => [
   body('firstName')
@@ -21,7 +21,7 @@ exports.signupValidation = () => [
     .isLength({ min: 8 })
     .withMessage('must contain at least 8 characters')
     .trim()
-];
+]
 
 exports.signinValidation = () => [
   body('email')
@@ -37,7 +37,7 @@ exports.signinValidation = () => [
     .isLength({ min: 8 })
     .withMessage('must contain at least 8 characters')
     .trim()
-];
+]
 
 // Validate email to update password  & resend verification email
 exports.validateEmail = () => [
@@ -50,7 +50,7 @@ exports.validateEmail = () => [
     .withMessage('must be valid email.')
     .normalizeEmail({ gmail_remove_dots: false })
     .toLowerCase()
-];
+]
 
 // Validate new password
 exports.validatePassword = () => [
@@ -67,4 +67,4 @@ exports.validatePassword = () => [
     .isLength({ min: 8 })
     .withMessage('must contain at least 8 characters.')
     .trim()
-];
+]
