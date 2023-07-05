@@ -25,18 +25,18 @@ exports.uploadFiles = (req, res) => {
 
       // Create file object
       const files = req.files.map((file) => {
-        const filedata = {
+        const fileData = {
           destination: file.location,
           encoding: file.encoding,
           metadata: file.metadata,
-          fieldname: file.fieldname,
+          fieldName: file.fieldName,
           filename: file.filename,
           mimetype: file.mimetype,
           originalname: file.originalname,
           path: file.path,
           size: file.size
         }
-        return filedata
+        return fileData
       })
 
       // Create and save package
