@@ -39,7 +39,7 @@ exports.uploadFiles = (req, res) => {
         return filedata
       })
 
-      // Create and save packge
+      // Create and save package
       const packageId = `package_${nanoid()}`
       const packageData = new Package({
         user: req.auth._id,
@@ -130,7 +130,7 @@ exports.downloadPackage = async (req, res) => {
       let complete = 0
       const zip = new AdmZip()
       const downloadPath = path.join(process.cwd(), fileDir)
-      filePackage.files.forEach(file => {
+      filePackage.files.forEach((file) => {
         const filePath = `${filePackage.package_destination}/${file.originalname}`
         const options = {
           Bucket: process.env.S3_BUCKET_NAME,
