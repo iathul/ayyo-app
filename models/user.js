@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
-const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
-const crypto = require('crypto');
+const mongoose = require('mongoose')
+const { v4: uuidv4 } = require('uuid')
+const crypto = require('crypto')
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -43,31 +43,31 @@ const userSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true
-});
+})
 
 userSchema.virtual('password')
   .set(function (password) {
-    this._password = password;
-    this.salt = uuidv4();
-    this.hashed_password = this.securePassword(password);
+    this._password = password
+    this.salt = uuidv4()
+    this.hashed_password = this.securePassword(password)
   })
   .get(function () {
-    return this._password;
-  });
+    return this._password
+  })
 
 userSchema.methods = {
   authenticate(plainPassword) {
-    return this.securePassword(plainPassword) === this.hashed_password;
+    return this.securePassword(plainPassword) === this.hashed_password
   },
   securePassword(plainPassword) {
-    if (!plainPassword) return '';
+    if (!plainPassword) return ''
     try {
       return crypto
         .createHmac('sha256', this.salt)
         .update(plainPassword)
-        .digest('hex');
+        .digest('hex')
     } catch (err) {
-      return '';
+      return ''
     }
   },
   userDetails() {
@@ -76,12 +76,12 @@ userSchema.methods = {
       fullName: this.fullName(),
       email: this.email,
       isVerified: this.isVerified
-    };
-    return user;
+    }
+    return user
   },
   fullName() {
-    return `${this.firstName} ${this.lastName}`;
+    return `${this.firstName} ${this.lastName}`
   }
-};
+}
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema)
