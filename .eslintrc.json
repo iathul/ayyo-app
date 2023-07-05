@@ -14,6 +14,7 @@
       "no-underscore-dangle": "off",
       "no-console": "off",
       "consistent-return": "off",
-      "comma-dangle": "off"
+      "comma-dangle": "off",
+      "semi": ["error", "never"]
     }
 }
