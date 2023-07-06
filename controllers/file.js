@@ -69,7 +69,6 @@ exports.uploadFiles = (req, res) => {
 }
 
 // Create sharable link
-// Todo share via email
 exports.shareFiles = async (req, res) => {
   try {
     const { packageId } = req.params
