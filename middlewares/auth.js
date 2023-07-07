@@ -1,35 +1,41 @@
 const expressjwt = require('express-jwt')
 const User = require('../models/user')
 
-exports.verifyToken = () => expressjwt(
-  {
+exports.verifyToken = () => (req, res, next) => {
+  expressjwt({
     secret: process.env.TOKEN_SECRET,
     algorithms: ['HS256'],
     credentialsRequired: false,
-    userProperty: 'auth',
-  },
-  (err, req, res, next) => {
+    userProperty: 'auth'
+  })(req, res, (err) => {
     if (err) {
       return res.status(err.status).json({
-        error: 'Token expired. You are not authenticated. Please login.',
+        error: 'Token expired. You are not authenticated. Please login.'
       })
     }
-    return next()
-  }
-)
+    next(err)
+  })
+}
 
 exports.isAuthenticated = async (req, res, next) => {
-  if (req.auth) {
-    const authUser = await User.findById(req.auth._id).select({
-      salt: 0,
-      hashed_password: 0,
+  if (!req.auth) {
+    return res.status(403).json({
+      error: 'You are not authenticated. Please login'
     })
+  }
+
+  try {
+    const authUser = await User.findById(req.auth._id).select(
+      '-token -salt -hashed_password'
+    )
     if (!authUser) {
       return res.status(403).json({
-        error: 'You are not authenticated. Please login',
+        error: 'You are not authenticated. Please login'
       })
     }
     req.authUser = authUser
     next()
+  } catch (err) {
+    next(err)
   }
 }
