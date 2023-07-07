@@ -25,15 +25,13 @@ exports.isAuthenticated = async (req, res, next) => {
   }
 
   try {
-    const authUser = await User.findById(req.auth._id).select(
-      '-token -salt -hashed_password'
-    )
+    const authUser = await User.findById(req.auth._id)
     if (!authUser) {
       return res.status(403).json({
         error: 'You are not authenticated. Please login'
       })
     }
-    req.authUser = authUser
+    req.authUser = authUser.userDetails()
     next()
   } catch (err) {
     next(err)

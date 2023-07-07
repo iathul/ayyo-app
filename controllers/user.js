@@ -6,7 +6,10 @@ const { storagePath } = require('../config/multer')
 exports.getUser = (req, res) => {
   try {
     const user = req.authUser
-    return res.json(user)
+    return res.status(200).json({
+      message: 'User details',
+      user
+    })
   } catch (error) {
     console.log(`Failed to fetch user details - ${error.message}`)
     return res.status(500).json({
