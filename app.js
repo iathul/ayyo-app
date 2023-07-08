@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-
 // Load environment variables
 require('dotenv').config()
 
