@@ -1,11 +1,13 @@
-const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 const User = require('../models/user')
 const {
   sendEmailVerificationLink,
   sendResetPswdLink
 } = require('../emails/email')
-const { createVerificationToken } = require('../utils/token')
+const {
+  createVerificationToken,
+  generateAccessRefreshToken
+} = require('../utils/token')
 
 // Request validation
 const requestValidation = async (req, res) => {
@@ -24,7 +26,10 @@ exports.register = async (req, res) => {
     requestValidation(req, res)
 
     const {
-      firstName, lastName, email, password
+      firstName,
+      lastName,
+      email,
+      password
     } = req.body
 
     const userExists = await User.findOne({ email })
@@ -78,12 +83,12 @@ exports.verifyEmail = async (req, res) => {
 
       if (!verified) {
         return res.status(400).json({
-          error: 'Email already verified.',
+          error: 'Email already verified.'
         })
       }
 
       return res.status(200).json({
-        message: 'Email verified successfully',
+        message: 'Email verified successfully'
       })
     }
     return res.status(400).json({
@@ -108,13 +113,13 @@ exports.login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        error: 'User not found. Please signup',
+        error: 'User not found. Please signup'
       })
     }
 
     if (!user.isVerified) {
       return res.status(400).json({
-        error: 'Please verify your account.',
+        error: 'Please verify your account.'
       })
     }
 
@@ -124,11 +129,15 @@ exports.login = async (req, res) => {
       })
     }
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
-      expiresIn: process.env.TOKEN_EXPIRY,
-    })
+    const access_token = generateAccessRefreshToken(user, 'access')
+    const refresh_token = generateAccessRefreshToken(user, 'refresh')
 
-    return res.json({ token, user: user.userDetails() })
+    user.refresh_token = refresh_token
+    await user.save()
+
+    return res
+      .status(200)
+      .json({ access_token, refresh_token, user: user.userDetails() })
   } catch (error) {
     console.log(`Login failed - ${error.message}`)
     return res.status(500).json({
@@ -186,11 +195,11 @@ exports.updatePassword = async (req, res) => {
       const updated = await user.save()
       if (!updated) {
         return res.status(400).json({
-          error: 'Failed to password.Please try again.',
+          error: 'Failed to password.Please try again.'
         })
       }
       return res.status(200).json({
-        message: 'Password updated successfully.',
+        message: 'Password updated successfully.'
       })
     }
   } catch (error) {
