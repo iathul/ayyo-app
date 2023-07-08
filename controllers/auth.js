@@ -5,15 +5,16 @@ const {
   sendEmailVerificationLink,
   sendResetPswdLink
 } = require('../emails/email')
-const { createVerificationToken } = require('../utils/token')
+const {
+  createVerificationToken,
+  generateAccessRefreshToken
+} = require('../utils/token')
 
 // Request validation
-const requestValidation = async (req, res) => {
+const requestValidation = async (req) => {
   const errors = await validationResult(req)
   if (!errors.isEmpty()) {
-    return res.status(422).json({
-      error: `${errors.array()[0].param} ${errors.array()[0].msg}`
-    })
+    return `${errors.array()[0].param} ${errors.array()[0].msg}`
   }
 }
 
@@ -21,10 +22,18 @@ const requestValidation = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     // Request validation
-    requestValidation(req, res)
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
 
     const {
-      firstName, lastName, email, password
+      firstName,
+      lastName,
+      email,
+      password
     } = req.body
 
     const userExists = await User.findOne({ email })
@@ -78,12 +87,12 @@ exports.verifyEmail = async (req, res) => {
 
       if (!verified) {
         return res.status(400).json({
-          error: 'Email already verified.',
+          error: 'Email already verified.'
         })
       }
 
       return res.status(200).json({
-        message: 'Email verified successfully',
+        message: 'Email verified successfully'
       })
     }
     return res.status(400).json({
@@ -101,20 +110,25 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     // Request validation
-    requestValidation(req)
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
 
     const { email, password } = req.body
     const user = await User.findOne({ email })
 
     if (!user) {
       return res.status(404).json({
-        error: 'User not found. Please signup',
+        error: 'User not found. Please signup'
       })
     }
 
     if (!user.isVerified) {
       return res.status(400).json({
-        error: 'Please verify your account.',
+        error: 'Please verify your account.'
       })
     }
 
@@ -124,11 +138,15 @@ exports.login = async (req, res) => {
       })
     }
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
-      expiresIn: process.env.TOKEN_EXPIRY,
-    })
+    const access_token = generateAccessRefreshToken(user, 'access')
+    const refresh_token = generateAccessRefreshToken(user, 'refresh')
 
-    return res.json({ token, user: user.userDetails() })
+    user.refresh_token = refresh_token
+    await user.save()
+
+    return res
+      .status(200)
+      .json({ access_token, refresh_token, user: user.userDetails() })
   } catch (error) {
     console.log(`Login failed - ${error.message}`)
     return res.status(500).json({
@@ -140,7 +158,12 @@ exports.login = async (req, res) => {
 // Send reset password link
 exports.sendResetPswdLink = async (req, res) => {
   try {
-    requestValidation(req)
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
 
     const user = await User.findOne({ email: req.body.email })
     if (!user) {
@@ -171,7 +194,12 @@ exports.sendResetPswdLink = async (req, res) => {
 // Update password
 exports.updatePassword = async (req, res) => {
   try {
-    requestValidation(req)
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
 
     const { token } = req.query
     if (token) {
@@ -186,11 +214,11 @@ exports.updatePassword = async (req, res) => {
       const updated = await user.save()
       if (!updated) {
         return res.status(400).json({
-          error: 'Failed to password.Please try again.',
+          error: 'Failed to password.Please try again.'
         })
       }
       return res.status(200).json({
-        message: 'Password updated successfully.',
+        message: 'Password updated successfully.'
       })
     }
   } catch (error) {
@@ -228,6 +256,38 @@ exports.sendEmailVerificationLink = async (req, res) => {
     console.log(`Failed to resent verification email - ${error.message}`)
     return res.status(500).json({
       error: 'Failed to resent verification email. Please try again.'
+    })
+  }
+}
+
+// Get access token from refresh token
+exports.getAccessToken = async (req, res) => {
+  try {
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
+    const { refresh_token } = req.body
+    const user = await User.findOne({ refresh_token })
+    if (!user) {
+      return res.status(401).json({
+        error: 'Invalid or expired refresh token.'
+      })
+    }
+    const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET)
+    if (!decoded) {
+      return res.status(401).json({
+        error: 'Invalid or expired refresh token.'
+      })
+    }
+    const access_token = generateAccessRefreshToken(decoded, 'access')
+    return res.status(200).json({ access_token })
+  } catch (error) {
+    console.log(`Failed to generate access token - ${error.message}`)
+    return res.status(500).json({
+      error: 'Failed to generate access token. Please try again.'
     })
   }
 }

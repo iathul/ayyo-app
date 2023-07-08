@@ -68,3 +68,12 @@ exports.validatePassword = () => [
     .withMessage('must contain at least 8 characters.')
     .trim()
 ]
+
+// Validate new password
+exports.validateRefreshToken = () => [
+  body('refresh_token')
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage('is required.')
+]

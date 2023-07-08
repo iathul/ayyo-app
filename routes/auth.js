@@ -18,6 +18,17 @@ router.post('/password', validator.validateEmail(), auth.sendResetPswdLink)
 router.put('/password', validator.validatePassword(), auth.updatePassword)
 
 // Resend verification email
-router.post('/verify/email', validator.validateEmail(), auth.sendEmailVerificationLink)
+router.post(
+  '/verify/email',
+  validator.validateEmail(),
+  auth.sendEmailVerificationLink
+)
+
+// Get new access token using refresh token
+router.post(
+  '/refresh-token',
+  validator.validateRefreshToken(),
+  auth.getAccessToken
+)
 
 module.exports = router

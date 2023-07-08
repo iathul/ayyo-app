@@ -1,9 +1,9 @@
-const expressjwt = require('express-jwt')
+const expressJwt = require('express-jwt')
 const User = require('../models/user')
 
 exports.verifyToken = () => (req, res, next) => {
-  expressjwt({
-    secret: process.env.TOKEN_SECRET,
+  expressJwt({
+    secret: process.env.ACCESS_TOKEN_SECRET,
     algorithms: ['HS256'],
     credentialsRequired: false,
     userProperty: 'auth'
