@@ -1,6 +1,7 @@
 const multer = require('multer')
 const { nanoid } = require('nanoid')
 const { storagePath } = require('../config/multer')
+const User = require('../models/user')
 
 // Get user
 exports.getUser = (req, res) => {
@@ -23,19 +24,20 @@ exports.updateUser = async (req, res) => {
   try {
     const user = req.authUser
     const { firstName, lastName } = req.body
-
-    user.firstName = firstName
-    user.lastName = lastName
-
-    const updated = await user.save()
-
-    if (!updated) {
+    const userModel = new User()
+    const userDetails = {
+      firstName,
+      lastName
+    }
+    const updatedUser = await userModel.updateUserDetails(user.id, userDetails)
+    if (!updatedUser) {
       return res.status(500).json({
-        error: 'Failed to update user details. Please try again.',
+        error: 'Failed to update user details. Please try again.'
       })
     }
     return res.status(200).json({
-      message: 'User updated successfully',
+      message: 'User updated successfully.',
+      user: updatedUser.userDetails()
     })
   } catch (error) {
     console.log(`Failed to update user details - ${error.message}`)
@@ -53,11 +55,11 @@ exports.deleteUser = async (req, res) => {
 
     if (!deleted) {
       return res.status(500).json({
-        error: 'Failed to remove user. Please try again.',
+        error: 'Failed to remove user. Please try again.'
       })
     }
     return res.status(200).json({
-      message: 'User remove successfully.',
+      message: 'User remove successfully.'
     })
   } catch (error) {
     console.log(`Failed to remove user - ${error.message}`)
@@ -87,11 +89,11 @@ exports.changeAvatar = async (req, res) => {
 
       if (!updated) {
         return res.status(400).json({
-          error: 'Failed update avatar. Please try again.',
+          error: 'Failed update avatar. Please try again.'
         })
       }
       return res.status(200).json({
-        message: 'Avatar updated successfully.',
+        message: 'Avatar updated successfully.'
       })
     })
   } catch (error) {
