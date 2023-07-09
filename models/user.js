@@ -87,7 +87,7 @@ userSchema.methods = {
     return user
   },
   fullName() {
-    return `${this.firstName} ${this.lastName}`
+    return this.lastName ? `${this.firstName} ${this.lastName}` : this.firstName
   },
   updateUserDetails(userId, userDetails) {
     const User = mongoose.model('User')
