@@ -4,51 +4,55 @@ const mongoose = require('mongoose')
 const { v4: uuidv4 } = require('uuid')
 const crypto = require('crypto')
 
-const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-    trim: true,
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    lastName: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true
+    },
+    salt: {
+      type: String
+    },
+    hashed_password: {
+      type: String,
+      required: true,
+      min: 8,
+      max: 1024
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    avatar: {
+      type: String,
+      required: false
+    },
+    token: {
+      type: String
+    },
+    refresh_token: {
+      type: String
+    }
   },
-  lastName: {
-    type: String,
-    trim: true,
-    default: '',
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  salt: {
-    type: String,
-  },
-  hashed_password: {
-    type: String,
-    required: true,
-    min: 8,
-    max: 1024,
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  avatar: {
-    type: String,
-    required: false,
-  },
-  token: {
-    type: String,
-  },
-  refresh_token: {
-    type: String
+  {
+    timestamps: true
   }
-}, {
-  timestamps: true
-})
+)
 
-userSchema.virtual('password')
+userSchema
+  .virtual('password')
   .set(function (password) {
     this._password = password
     this.salt = uuidv4()
@@ -83,7 +87,22 @@ userSchema.methods = {
     return user
   },
   fullName() {
-    return `${this.firstName} ${this.lastName}`
+    return this.lastName ? `${this.firstName} ${this.lastName}` : this.firstName
+  },
+  updateUserDetails(userId, userDetails) {
+    const User = mongoose.model('User')
+    return User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          firstName: userDetails.firstName,
+          lastName: userDetails.lastName
+        }
+      },
+      {
+        new: true
+      }
+    )
   }
 }
 

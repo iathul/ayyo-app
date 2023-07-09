@@ -1,33 +1,33 @@
 const router = require('express').Router()
 const auth = require('../controllers/auth')
-const validator = require('./validation/validators')
+const authValidator = require('./validation/auth')
 
 // Signup route
-router.post('/register', validator.signupValidation(), auth.register)
+router.post('/register', authValidator.signupValidation(), auth.register)
 
 // Sign in route
-router.post('/login', validator.signinValidation(), auth.login)
+router.post('/login', authValidator.signinValidation(), auth.login)
 
 // Verify email
 router.get('/verify/email', auth.verifyEmail)
 
 // Get reset password email
-router.post('/password', validator.validateEmail(), auth.sendResetPswdLink)
+router.post('/password', authValidator.validateEmail(), auth.sendResetPswdLink)
 
 // Update password
-router.put('/password', validator.validatePassword(), auth.updatePassword)
+router.put('/password', authValidator.validatePassword(), auth.updatePassword)
 
 // Resend verification email
 router.post(
   '/verify/email',
-  validator.validateEmail(),
+  authValidator.validateEmail(),
   auth.sendEmailVerificationLink
 )
 
 // Get new access token using refresh token
 router.post(
   '/refresh-token',
-  validator.validateRefreshToken(),
+  authValidator.validateRefreshToken(),
   auth.getAccessToken
 )
 
