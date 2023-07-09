@@ -1,7 +1,16 @@
+const { validationResult } = require('express-validator')
 const multer = require('multer')
 const { nanoid } = require('nanoid')
 const { storagePath } = require('../config/multer')
 const User = require('../models/user')
+
+// Request validation
+const requestValidation = async (req) => {
+  const errors = await validationResult(req)
+  if (!errors.isEmpty()) {
+    return `${errors.array()[0].param} ${errors.array()[0].msg}`
+  }
+}
 
 // Get user
 exports.getUser = (req, res) => {
@@ -22,6 +31,13 @@ exports.getUser = (req, res) => {
 // Update user
 exports.updateUser = async (req, res) => {
   try {
+    // Request validation
+    const error = await requestValidation(req, res)
+    if (error) {
+      return res.status(422).json({
+        error
+      })
+    }
     const user = req.authUser
     const { firstName, lastName } = req.body
     const userModel = new User()
@@ -77,7 +93,7 @@ exports.changeAvatar = async (req, res) => {
     const storage = storagePath(`avatar/${fileLoc}`)
     const upload = multer({ storage }).single('avatar')
 
-    upload(req, res, (err) => {
+    upload(req, res, err => {
       if (err) {
         return res.status(400).json({
           error: 'Failed update avatar. Please try again.'
