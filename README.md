@@ -7,7 +7,7 @@ ayyo server side development
 
 ## What is Ayyo?
 
-Ayyo (Pronounced as I/O simply means Input and Output) is an application for transferring file via email.
+Ayyo (Pronounced as I/O means Input and Output) is an application for transferring files via email.
 
 ### To run Ayyo
 
