@@ -20,7 +20,7 @@ exports.verifyToken = () => (req, res, next) => {
 exports.isAuthenticated = async (req, res, next) => {
   if (!req.auth) {
     return res.status(403).json({
-      error: 'You are not authenticated. Please login'
+      error: 'You are not authenticated. Please login again.'
     })
   }
 
@@ -28,7 +28,7 @@ exports.isAuthenticated = async (req, res, next) => {
     const authUser = await User.findById(req.auth._id)
     if (!authUser) {
       return res.status(403).json({
-        error: 'You are not authenticated. Please login'
+        error: 'You are not authenticated. Please login again.'
       })
     }
     req.authUser = authUser.userDetails()
