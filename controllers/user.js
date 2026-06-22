@@ -18,7 +18,7 @@ exports.getUser = (req, res) => {
     const user = req.authUser
     return res.status(200).json({
       message: 'User details',
-      user
+      user: user.userDetails()
     })
   } catch (error) {
     console.log(`Failed to fetch user details - ${error.message}`)
@@ -67,7 +67,7 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const user = req.authUser
-    const deleted = await user.remove()
+    const deleted = await User.findByIdAndDelete(user._id)
 
     if (!deleted) {
       return res.status(500).json({
@@ -89,11 +89,11 @@ exports.deleteUser = async (req, res) => {
 exports.changeAvatar = async (req, res) => {
   try {
     const user = req.authUser
-    const fileLoc = nanoid(6)
+    const fileLoc = nanoid()
     const storage = storagePath(`avatar/${fileLoc}`)
     const upload = multer({ storage }).single('avatar')
 
-    upload(req, res, err => {
+    upload(req, res, async (err) => {
       if (err) {
         return res.status(400).json({
           error: 'Failed update avatar. Please try again.'
@@ -101,7 +101,7 @@ exports.changeAvatar = async (req, res) => {
       }
 
       user.avatar = req.file.path
-      const updated = user.save()
+      const updated = await user.save()
 
       if (!updated) {
         return res.status(400).json({

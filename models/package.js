@@ -79,8 +79,7 @@ packageSchema.methods = {
   },
   async deletePackageById(packageId) {
     const Package = mongoose.model('Package')
-    const packageData = await Package.findOne({ packageId })
-    await packageData.remove()
+    await Package.findOneAndDelete({ packageId })
   }
 }
 

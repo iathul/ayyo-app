@@ -23,6 +23,12 @@
         "camelcase": "off",
         "global-require":"off"
       }
+    },
+    {
+      "files": ["tests/**/*.js", "**/__mocks__/**/*.js"],
+      "env": {
+        "jest": true
+      }
     }
   ]
 }

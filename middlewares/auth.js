@@ -9,7 +9,7 @@ exports.verifyToken = () => (req, res, next) => {
     userProperty: 'auth'
   })(req, res, (err) => {
     if (err) {
-      return res.status(err.status).json({
+      return res.status(err.status || 401).json({
         error: 'Token expired. You are not authenticated. Please login.'
       })
     }
@@ -31,7 +31,7 @@ exports.isAuthenticated = async (req, res, next) => {
         error: 'You are not authenticated. Please login again.'
       })
     }
-    req.authUser = authUser.userDetails()
+    req.authUser = authUser
     next()
   } catch (err) {
     next(err)

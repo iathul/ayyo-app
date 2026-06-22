@@ -19,7 +19,7 @@ exports.sendEmailVerificationLink = async (user) => {
       process.env.NODE_ENV === 'development'
         ? process.env.BASE_URL
         : process.env.BASE_URL_PROD
-    }/auth/verify/email/?token=${token}`
+    }/api/v1/auth/verify/email?token=${token}`
 
     const mailData = await ejs.renderFile(`${template}/verifyAccount.ejs`, {
       name: user.fullName(),
@@ -28,7 +28,7 @@ exports.sendEmailVerificationLink = async (user) => {
 
     const jobData = {
       mailOptions: {
-        from: process.env.Email,
+        from: process.env.EMAIL,
         to: user.email,
         subject: 'Confirm your email',
         html: mailData,
@@ -52,7 +52,7 @@ exports.sendResetPswdLink = async (user) => {
       process.env.NODE_ENV === 'development'
         ? process.env.BASE_URL
         : process.env.BASE_URL_PROD
-    }/api/auth/password/update/?token=${token}`
+    }/api/v1/auth/password?token=${token}`
 
     const mailData = await ejs.renderFile(`${template}/resetPswd.ejs`, {
       name: user.fullName(),
@@ -61,7 +61,7 @@ exports.sendResetPswdLink = async (user) => {
 
     const jobData = {
       mailOptions: {
-        from: process.env.Email,
+        from: process.env.EMAIL,
         to: user.email,
         subject: 'Reset your password',
         html: mailData,

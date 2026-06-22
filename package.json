@@ -4,18 +4,18 @@
   "description": "File transfer application",
   "main": "app.js",
   "scripts": {
-    "start": "node app",
-    "prod": "cross-env NODE_ENV=production node app",
-    "dev": "cross-env NODE_ENV=development nodemon app",
+    "start": "node bin/start",
+    "prod": "cross-env NODE_ENV=production node bin/start",
+    "dev": "cross-env NODE_ENV=development nodemon bin/start",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --runInBand"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iathul/ayyo-app.git"
   },
   "author": "Athul Joy",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/iathul/ayyo-app/issues"
   },
@@ -29,7 +29,9 @@
     "ejs": "^3.1.7",
     "express": "^4.17.3",
     "express-jwt": "^6.1.0",
+    "express-rate-limit": "^8.5.2",
     "express-validator": "^6.13.0",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",
     "mongoose": "^6.12.0",
@@ -45,7 +47,10 @@
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "supertest": "^7.2.2"
   }
 }

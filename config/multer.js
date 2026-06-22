@@ -1,12 +1,13 @@
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 const s3 = require('./S3Config')
+const sanitizeFilename = require('../utils/sanitizeFilename')
 
 // For development
 exports.storagePath = (name) => {
   const storage = multer.diskStorage({
     destination: `./media/${name}`,
-    filename: (req, file, cb) => cb(null, `${file.originalname}`),
+    filename: (req, file, cb) => cb(null, sanitizeFilename(file.originalname)),
   })
   return storage
 }
@@ -22,7 +23,7 @@ exports.s3Storage = (name) => {
       })
     },
     key(req, file, cb) {
-      cb(null, `${name}/${file.originalname}`)
+      cb(null, `${name}/${sanitizeFilename(file.originalname)}`)
     }
   })
   return storageS3

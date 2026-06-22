@@ -278,7 +278,7 @@ exports.getAccessToken = async (req, res) => {
     }
     const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET)
     const access_token = generateAccessRefreshToken(decoded, 'access')
-    return res.status(401).json({ access_token })
+    return res.status(200).json({ access_token })
   } catch (error) {
     console.log(`Failed to generate access token - ${error.message}`)
     return res.status(401).json({

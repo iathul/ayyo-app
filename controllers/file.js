@@ -2,16 +2,18 @@ const multer = require('multer')
 const { nanoid } = require('nanoid')
 const AdmZip = require('adm-zip')
 const fs = require('fs')
+const os = require('os')
 const moment = require('moment')
 const path = require('path')
 const { PassThrough } = require('stream')
 const Package = require('../models/package')
 const { s3Storage } = require('../config/multer')
 const s3 = require('../config/S3Config')
+const sanitizeFilename = require('../utils/sanitizeFilename')
 
 exports.uploadFiles = (req, res) => {
   try {
-    const fileLoc = nanoid(6)
+    const fileLoc = nanoid()
     const storage = s3Storage(fileLoc)
     const upload = multer({ storage }).array('fileData')
 
@@ -32,7 +34,7 @@ exports.uploadFiles = (req, res) => {
           fieldName: file.fieldName,
           filename: file.filename,
           mimetype: file.mimetype,
-          originalname: file.originalname,
+          originalname: sanitizeFilename(file.originalname),
           path: file.path,
           size: file.size
         }
@@ -82,7 +84,7 @@ exports.shareFiles = async (req, res) => {
       process.env.NODE_ENV === 'development'
         ? process.env.BASE_URL
         : process.env.BASE_URL_PROD
-    }/files/download/${packageId}`
+    }/api/v1/files/download/${packageId}`
     return res.status(200).json({
       message: 'Sharable Link.',
       url: fileUrl
@@ -118,20 +120,42 @@ exports.downloadPackage = async (req, res) => {
         Bucket: process.env.S3_BUCKET_NAME,
         Key: filePath
       }
-      res.attachment(filePath)
-      const fileStream = s3.getObject(options).createReadStream()
-      fileStream.pipe(res)
+
+      // Record the download before opening the S3 stream so the status
+      // write can't race a stream error firing mid-await.
       await packageModel.updatePackageStatus(packageId)
+
+      const fileStream = s3.getObject(options).createReadStream()
+      fileStream.on('error', (err) => {
+        console.log(`Failed to stream file from S3 - ${err.message}`)
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Unable to download the package. Please try again.' })
+        }
+      })
+      res.attachment(filePath)
+      fileStream.pipe(res)
+      return
     }
     if (filePackage.files.length > 1) {
-      // Download package with multiple files
-      const fileDir = `./downloads/${filePackage.package_destination}`
-      if (!fs.existsSync(fileDir)) {
-        fs.mkdirSync(fileDir, { recursive: true })
-      }
+      // Download package with multiple files - use a unique per-request temp
+      // dir so concurrent downloads of the same package don't race on disk.
+      const fileDir = path.join(os.tmpdir(), `ayyo-${nanoid()}`)
+      fs.mkdirSync(fileDir, { recursive: true })
+
       let complete = 0
+      let failed = false
       const zip = new AdmZip()
-      const downloadPath = path.join(process.cwd(), fileDir)
+      const cleanup = () => fs.rmSync(fileDir, { recursive: true, force: true })
+      const failOnce = (err) => {
+        if (failed) return
+        failed = true
+        console.log(`Failed to download package - ${err.message}`)
+        cleanup()
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Unable to download the package. Please try again.' })
+        }
+      }
+
       filePackage.files.forEach((file) => {
         const filePath = `${filePackage.package_destination}/${file.originalname}`
         const options = {
@@ -139,21 +163,24 @@ exports.downloadPackage = async (req, res) => {
           Key: filePath
         }
         const fileStream = s3.getObject(options).createReadStream()
-        const writeStream = fs.createWriteStream(
-          `${downloadPath}/${file.originalname}`
-        )
+        const writeStream = fs.createWriteStream(`${fileDir}/${file.originalname}`)
+        fileStream.on('error', failOnce)
+        writeStream.on('error', failOnce)
         fileStream.pipe(writeStream)
         writeStream.on('finish', async () => {
+          if (failed) return
           complete += 1
           if (complete === filePackage.files.length) {
+            // Record the download before streaming the zip back, same reasoning
+            // as the single-file path above.
+            await packageModel.updatePackageStatus(packageId)
             zip.addLocalFolder(fileDir)
             const zipFile = zip.toBuffer()
             res.attachment(`${Date.now()}.zip`)
             const zipStream = new PassThrough()
             zipStream.end(zipFile)
             zipStream.pipe(res)
-            await packageModel.updatePackageStatus(packageId)
-            fs.rmSync(fileDir, { recursive: true, force: true })
+            cleanup()
           }
         })
       })

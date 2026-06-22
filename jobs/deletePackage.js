@@ -19,7 +19,7 @@ exports.deletePackageJob = async () => {
         const { packageId, files } = job.data
         const deletePromises = files.map((file) => {
           const params = {
-            Bucket: 'ayyo-file-storage',
+            Bucket: process.env.S3_BUCKET_NAME,
             Key: `${file.metadata.fieldName}/${file.originalname}`,
           }
           return s3.deleteObject(params).promise()
